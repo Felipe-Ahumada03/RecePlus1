@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, Platform } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function LoginScreen({ navigation }: any) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -11,58 +13,62 @@ export default function LoginScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header simplificado */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.brand}>RecePlus</Text>
+          <TouchableOpacity 
+            onPress={() => router.push('/')} 
+            style={styles.logoLink}
+            activeOpacity={1}
+          >
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.brand}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.menuButton}>
-          <Text style={styles.menuIcon}>☰</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Main */}
-      <View style={styles.main}>
-        <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.icon} />
-        <Text style={styles.title}>Bienvenido de nuevo</Text>
-        <Text style={styles.subtitle}>Ingresa tus credenciales para acceder a tu cuenta</Text>
-        <View style={styles.formBox}>
-          <Text style={styles.label}>Correo electrónico</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="nombre@ejemplo.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#bdbdbd"
-          />
-          <View style={styles.passwordRow}>
-            <Text style={styles.label}>Contraseña</Text>
-            <TouchableOpacity>
-              <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContent}>
+        <View style={styles.main}>
+          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.icon} />
+          <Text style={styles.title}>Bienvenido de nuevo</Text>
+          <Text style={styles.subtitle}>Ingresa tus credenciales para acceder a tu cuenta</Text>
+          <View style={styles.formBox}>
+            <Text style={styles.label}>Correo electrónico</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="nombre@ejemplo.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              placeholderTextColor="#bdbdbd"
+            />
+            <View style={styles.passwordRow}>
+              <Text style={styles.label}>Contraseña</Text>
+              <TouchableOpacity>
+                <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="••••••••"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              placeholderTextColor="#bdbdbd"
+            />
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Iniciar sesión</Text>
             </TouchableOpacity>
-          </View>
-          <TextInput
-            style={styles.input}
-            placeholder="••••••••"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholderTextColor="#bdbdbd"
-          />
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Iniciar sesión</Text>
-          </TouchableOpacity>
-          <View style={styles.bottomRow}>
-            <Text style={styles.bottomText}>¿No tienes una cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation?.navigate('RegisterScreen')}>
-              <Text style={styles.registerText}>Regístrate</Text>
-            </TouchableOpacity>
+            <View style={styles.bottomRow}>
+              <Text style={styles.bottomText}>¿No tienes una cuenta? </Text>
+              <TouchableOpacity onPress={() => navigation?.navigate('RegisterScreen')}>
+                <Text style={styles.registerText}>Regístrate</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -72,20 +78,35 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 18,
-    paddingTop: 18,
+    paddingTop: 40,
     paddingBottom: 10,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  headerRow: { flexDirection: 'row', alignItems: 'center' },
+  headerRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center',
+  },
+  logoLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   logo: { width: 28, height: 28, marginRight: 8 },
   brand: { fontWeight: 'bold', fontSize: 20, color: '#22c55e' },
-  menuButton: { padding: 6 },
-  menuIcon: { fontSize: 22, color: '#222' },
-  main: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  main: { 
+    flex: 1,
+    alignItems: 'center',     // Centra horizontalmente
+    justifyContent: 'center', // Centra verticalmente
+    padding: 24,
+    paddingTop: 20,          // Reducido para mejor centrado
+  },
   icon: { width: 48, height: 48, marginBottom: 18, marginTop: 10 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#222', marginBottom: 6, textAlign: 'center' },
   subtitle: { color: '#666', fontSize: 15, marginBottom: 18, textAlign: 'center' },
@@ -101,9 +122,15 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     borderWidth: 1,
     borderColor: '#eee',
-    alignSelf: 'center',
+    alignSelf: 'center',     // Asegura que el formulario esté centrado
+    marginVertical: 20,      // Añade espacio vertical
   },
-  label: { fontWeight: 'bold', color: '#222', marginBottom: 4, fontSize: 14 },
+  label: { 
+    fontWeight: 'bold', 
+    color: '#222', 
+    marginBottom: 4, 
+    fontSize: 14 
+  },
   input: {
     borderWidth: 1,
     borderColor: '#e0e0e0',
@@ -133,4 +160,11 @@ const styles = StyleSheet.create({
   bottomRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
   bottomText: { color: '#444', fontSize: 14 },
   registerText: { color: '#22c55e', fontWeight: 'bold', fontSize: 14 },
+  scrollView: {
+    flex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'center', // Centra verticalmente
+  },
 });

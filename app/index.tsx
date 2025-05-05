@@ -42,9 +42,8 @@ export default function Home({ navigation }: any) {
             </View>
           </View>
           <Image
-            source={{ uri: 'https://via.placeholder.com/600' }}
+            source={{ uri: 'https://www.bupasalud.com.mx/sites/default/files/inline-images/bupa_598072389.jpg' }}
             style={styles.heroImage}
-            resizeMode="cover"
           />
         </View>
 

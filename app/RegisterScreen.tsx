@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function RegisterScreen({ navigation }: any) {
+  const router = useRouter();
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,18 +16,19 @@ export default function RegisterScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.brand}>RecePlus</Text>
+          <TouchableOpacity 
+            onPress={() => router.push('/')} 
+            style={styles.logoLink}
+            activeOpacity={1}
+          >
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.brand}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.menuButton}>
-          <Text style={styles.menuIcon}>☰</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Main */}
       <View style={styles.main}>
         <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.icon} />
         <Text style={styles.title}>Crea tu cuenta</Text>
@@ -91,29 +95,56 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 18,
-    paddingTop: 18,
-    paddingBottom: 10,
+    paddingTop: 35,
+    paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
     backgroundColor: '#fff',
   },
-  headerRow: { flexDirection: 'row', alignItems: 'center' },
+  headerRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center' 
+  },
   logo: { width: 28, height: 28, marginRight: 8 },
   brand: { fontWeight: 'bold', fontSize: 20, color: '#22c55e' },
+  logoLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   menuButton: { padding: 6 },
   menuIcon: { fontSize: 22, color: '#222' },
-  main: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  icon: { width: 48, height: 48, marginBottom: 18, marginTop: 10 },
-  title: { fontSize: 22, fontWeight: 'bold', color: '#222', marginBottom: 6, textAlign: 'center' },
-  subtitle: { color: '#666', fontSize: 15, marginBottom: 18, textAlign: 'center' },
+  main: { 
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+  },
+  icon: { 
+    width: 40, 
+    height: 40, 
+    marginBottom: 12, 
+    marginTop: 0 
+  },
+  title: { 
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    color: '#222', 
+    marginBottom: 4, 
+    textAlign: 'center' 
+  },
+  subtitle: { 
+    color: '#666', 
+    fontSize: 13, 
+    marginBottom: 12, 
+    textAlign: 'center' 
+  },
   formBox: {
     width: '100%',
     maxWidth: 350,
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 22,
+    padding: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -122,14 +153,19 @@ const styles = StyleSheet.create({
     borderColor: '#eee',
     alignSelf: 'center',
   },
-  label: { fontWeight: 'bold', color: '#222', marginBottom: 4, fontSize: 14 },
+  label: { 
+    fontWeight: 'bold', 
+    color: '#222', 
+    marginBottom: 2, 
+    fontSize: 13 
+  },
   input: {
     borderWidth: 1,
     borderColor: '#e0e0e0',
     borderRadius: 6,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
+    padding: 10,
+    marginBottom: 12,
+    fontSize: 15,
     backgroundColor: '#fafafa',
     color: '#222',
   },
@@ -144,9 +180,9 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   legalText: {
     color: '#888',
-    fontSize: 12,
+    fontSize: 11,
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
     marginTop: 2,
   },
   linkLegal: { color: '#22c55e', textDecorationLine: 'underline' },

@@ -1,8 +1,10 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar} from 'react-native';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Membership() {
+  const pathname = usePathname();
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -175,25 +177,40 @@ export default function Membership() {
 
       {/* Barra de navegación inferior */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
-          <Ionicons name="home-outline" size={24} color="#2e7d32" />
-          <Text style={styles.navText}>Inicio</Text>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/' && styles.activeNavItem]} 
+          onPress={() => router.push('/')}
+        >
+          <Ionicons name="home-outline" size={24} color={pathname === '/' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/' && styles.activeNavText]}>Inicio</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/recipes')}>
-          <Ionicons name="book-outline" size={24} color="#2e7d32" />
-          <Text style={styles.navText}>Recetas</Text>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/recipes' && styles.activeNavItem]} 
+          onPress={() => router.push('/recipes')}
+        >
+          <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/preferences')}>
-          <Ionicons name="settings-outline" size={24} color="#2e7d32" />
-          <Text style={styles.navText}>Preferencias</Text>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 
+          onPress={() => router.push('/preferences')}
+        >
+          <Ionicons name="settings-outline" size={24} color={pathname === '/preferences' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/preferences' && styles.activeNavText]}>Preferencias</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/membership')}>
-          <Ionicons name="person-outline" size={24} color="#2e7d32" />
-          <Text style={styles.navText}>Membresía</Text>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/membership' && styles.activeNavItem]} 
+          onPress={() => router.push('/membership')}
+        >
+          <Ionicons name="person-outline" size={24} color={pathname === '/membership' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/membership' && styles.activeNavText]}>Membresía</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/contact')}>
-          <Ionicons name="mail-outline" size={24} color="#2e7d32" />
-          <Text style={styles.navText}>Contacto</Text>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/contact' && styles.activeNavItem]} 
+          onPress={() => router.push('/contact')}
+        >
+          <Ionicons name="mail-outline" size={24} color={pathname === '/contact' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/contact' && styles.activeNavText]}>Contacto</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -491,4 +508,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
   },
+  activeNavItem: {
+    backgroundColor: '#e8f5e9',
+    borderRadius: 8,
+    padding: 4,
+  },
+  activeNavText: {
+    color: '#22c55e',
+    fontWeight: 'bold',
+  }
 });

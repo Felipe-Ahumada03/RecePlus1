@@ -1,8 +1,8 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar, Pressable } from 'react-native';
-import { Link } from 'expo-router';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar} from 'react-native';
+import { Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function Home({ navigation }: any) {
+export default function Home() {  // Removido el parámetro navigation
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -205,23 +205,23 @@ export default function Home({ navigation }: any) {
 
       {/* Barra de navegación inferior */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('/')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/')}>
           <Ionicons name="home-outline" size={24} color="#2e7d32" />
           <Text style={styles.navText}>Inicio</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('recetas')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/recipes')}>
           <Ionicons name="book-outline" size={24} color="#2e7d32" />
           <Text style={styles.navText}>Recetas</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('preferencias')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/preferences')}>
           <Ionicons name="settings-outline" size={24} color="#2e7d32" />
           <Text style={styles.navText}>Preferencias</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('membresia')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/membership')}>
           <Ionicons name="person-outline" size={24} color="#2e7d32" />
           <Text style={styles.navText}>Membresía</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('contacto')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/contact')}>
           <Ionicons name="mail-outline" size={24} color="#2e7d32" />
           <Text style={styles.navText}>Contacto</Text>
         </TouchableOpacity>
@@ -292,7 +292,8 @@ const styles = StyleSheet.create({
     color: '#2e7d32',
   },
   heroSection: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 100,
     backgroundColor: '#e8f5e9',
     alignItems: 'center',
   },
@@ -349,7 +350,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   section: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
   },
   sectionTag: {
     backgroundColor: '#a5d6a7',
@@ -583,6 +585,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#eee',
     paddingTop: 10,
+    marginBottom: 20,
     alignItems: 'center',
     marginTop: 8,
   },
@@ -603,7 +606,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 8, // Ajustado para iOS
+    paddingBottom: Platform.OS === 'ios' ? 40 : 8, // Ajustado para iOS
   },
   navItem: {
     alignItems: 'center',

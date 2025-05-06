@@ -1,10 +1,14 @@
-import { Slot } from "expo-router";
-import { View } from "react-native";
+import { Stack } from 'expo-router';
 
 export default function Layout() {
-    return (
-        <View style={{ flex: 1, backgroundColor: "#fff" }}>
-            <Slot />
-        </View>
-    );
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'none',
+        gestureEnabled: false,  // Deshabilita el gesto de retroceso
+        gestureDirection: 'horizontal'
+      }}
+    />
+  );
 }

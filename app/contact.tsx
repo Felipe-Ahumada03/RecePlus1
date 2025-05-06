@@ -10,7 +10,7 @@ export default function Contact() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
+      <View style={[styles.header, {justifyContent: 'flex-start'}]}>
         <View style={styles.logoContainer}>
           <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
           <Text style={styles.logoTitle}>RecePlus</Text>

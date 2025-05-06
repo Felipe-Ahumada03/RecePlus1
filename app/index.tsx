@@ -524,13 +524,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     width: '100%',
     marginBottom: 16,
-    gap: 0,
+    gap: 8,
   },
   footerColBrand: {
     flex: 1.2,
-    minWidth: 200,
-    maxWidth: 260,
-    marginRight: 10,
+    minWidth: 180, // Reducido de 200
+    maxWidth: 240, // Reducido de 260
+    marginRight: 5, // Reducido de 10
   },
   footerBrandRow: {
     flexDirection: 'row',
@@ -565,9 +565,9 @@ const styles = StyleSheet.create({
   },
   footerCol: {
     flex: 1,
-    minWidth: 140,
-    maxWidth: 180,
-    marginRight: 10,
+    minWidth: 130, 
+    maxWidth: 160, 
+    marginRight: 5, 
   },
   footerColTitle: {
     fontWeight: 'bold',

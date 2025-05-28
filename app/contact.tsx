@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform, Image, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform, Image, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
 
@@ -12,8 +12,10 @@ export default function Contact() {
       {/* Header */}
       <View style={[styles.header, {justifyContent: 'flex-start'}]}>
         <View style={styles.logoContainer}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.logoTitle}>RecePlus</Text>
+          <TouchableOpacity onPress={() => router.push('/')} style={{flexDirection:'row',alignItems:'center'}} activeOpacity={0.8}>
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.logoTitle}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -130,7 +132,7 @@ export default function Contact() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.submitButton}>
+          <TouchableOpacity style={styles.submitButton} onPress={() => Alert.alert('Mensaje enviado', 'Tu mensaje ha sido enviado correctamente.') }>
             <Text style={styles.submitButtonText}>Enviar mensaje</Text>
           </TouchableOpacity>
         </View>

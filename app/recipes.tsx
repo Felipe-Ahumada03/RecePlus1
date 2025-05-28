@@ -13,6 +13,8 @@ export default function Recipes() {
 
   // Estado para recomendaciones
   const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Árbol de decisión simple para ejemplo
   const decisionTree = [
@@ -54,6 +56,15 @@ export default function Recipes() {
       categoria: 'Mediterránea',
     },
   ];
+
+  useEffect(() => {
+    fetch('https://www.themealdb.com/api/json/v1/1/search.php?s=')
+      .then(res => res.json())
+      .then(data => {
+        setRecipes(data.meals || []);
+        setLoading(false);
+      });
+  }, []);
 
   const filteredRecipes = allRecipes.filter(r => {
     return Object.entries(decisionAnswers).every(([k, v]) => (r as any)[k] === v);
@@ -161,8 +172,10 @@ export default function Recipes() {
       {/* Header */}
       <View style={[styles.header, {justifyContent: 'flex-start'}]}>
         <View style={styles.logoContainer}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.logoTitle}>RecePlus</Text>
+          <TouchableOpacity onPress={() => router.push('/')} activeOpacity={0.8} style={{flexDirection:'row',alignItems:'center'}}>
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.logoTitle}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -240,74 +253,23 @@ export default function Recipes() {
           <Text style={styles.resultsTitle}>Resultados</Text>
         </View>
 
-        <View style={styles.recipeCard}>
-          <Image 
-            source={{ uri: 'https://www.gourmet.cl/wp-content/uploads/2016/12/Carbonara-editada.jpg' }}
-            style={styles.recipeImage}
-          />
-          <View style={styles.recipeInfo}>
-            <Text style={styles.recipeName}>Pasta Carbonara</Text>
-            <Text style={styles.recipeSubtitle}>Italiana</Text>
-            <Text style={styles.recipeDescription}>Deliciosa pasta con salsa cremosa de huevo y panceta</Text>
-            <View style={styles.recipeMetadata}>
-              <View style={styles.metaItem}>
-                <Text>25 min</Text>
-              </View>
-              <View style={styles.metaItem}>
-                <Text>Dificultad: Fácil</Text>
+        {loading ? (
+          <Text style={{margin: 20}}>Cargando recetas...</Text>
+        ) : (
+          recipes.map((r: any) => (
+            <View key={r.idMeal} style={styles.recipeCard}>
+              <Image source={{ uri: r.strMealThumb }} style={styles.recipeImage} />
+              <View style={styles.recipeInfo}>
+                <Text style={styles.recipeName}>{r.strMeal}</Text>
+                <Text style={styles.recipeSubtitle}>{r.strCategory}</Text>
+                <Text style={styles.recipeDescription}>{r.strArea}</Text>
+                <TouchableOpacity style={styles.recipeButton} onPress={() => router.push({ pathname: '/RecipeDetail', params: { id: r.idMeal } })}>
+                  <Text style={styles.recipeButtonText}>Ver receta</Text>
+                </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={styles.recipeButton}>
-              <Text style={styles.recipeButtonText}>Ver receta</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.recipeCard}>
-          <Image 
-            source={{ uri: 'https://mandolina.co/wp-content/uploads/2024/07/Tacos-de-Pollo-con-Salsa-Valentina.jpg' }}
-            style={styles.recipeImage}
-          />
-          <View style={styles.recipeInfo}>
-            <Text style={styles.recipeName}>Tacos de Pollo</Text>
-            <Text style={styles.recipeSubtitle}>Mexicana</Text>
-            <Text style={styles.recipeDescription}>Auténticos tacos mexicanos con pollo marinado y salsa picante</Text>
-            <View style={styles.recipeMetadata}>
-              <View style={styles.metaItem}>
-                <Text>35 min</Text>
-              </View>
-              <View style={styles.metaItem}>
-                <Text>Dificultad: Media</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.recipeButton}>
-              <Text style={styles.recipeButtonText}>Ver receta</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.recipeCard}>
-          <Image 
-            source={{ uri: 'https://cdn0.recetasgratis.net/es/posts/7/9/6/ensalada_mediterranea_de_atun_32697_orig.jpg' }}
-            style={styles.recipeImage}
-          />
-          <View style={styles.recipeInfo}>
-            <Text style={styles.recipeName}>Ensalada Mediterránea</Text>
-            <Text style={styles.recipeSubtitle}>Mediterránea</Text>
-            <Text style={styles.recipeDescription}>Ensalada fresca con ingredientes mediterráneos y aderezo de limón</Text>
-            <View style={styles.recipeMetadata}>
-              <View style={styles.metaItem}>
-                <Text>15 min</Text>
-              </View>
-              <View style={styles.metaItem}>
-                <Text>Dificultad: Fácil</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.recipeButton}>
-              <Text style={styles.recipeButtonText}>Ver receta</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+          ))
+        )}
       
           {/* Footer */}
                   <View style={styles.footer}>
@@ -328,23 +290,55 @@ export default function Recipes() {
                       </View>
                       <View style={styles.footerCol}>
                         <Text style={styles.footerColTitle}>NAVEGACIÓN</Text>
-                        <Text style={styles.footerLink}>Inicio</Text>
-                        <Text style={styles.footerLink}>Recetas</Text>
-                        <Text style={styles.footerLink}>Preferencias</Text>
-                        <Text style={styles.footerLink}>Membresía</Text>
-                        <Text style={styles.footerLink}>Contacto</Text>
+                        <TouchableOpacity onPress={() => router.replace('/')}> 
+                          <Text style={styles.footerLink}>Inicio</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.replace('/recipes')}>
+                          <Text style={styles.footerLink}>Recetas</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.replace('/preferences')}>
+                          <Text style={styles.footerLink}>Preferencias</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.replace('/membership')}>
+                          <Text style={styles.footerLink}>Membresía</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.replace('/contact')}>
+                          <Text style={styles.footerLink}>Contacto</Text>
+                        </TouchableOpacity>
                       </View>
                       <View style={styles.footerCol}>
                         <Text style={styles.footerColTitle}>LEGAL</Text>
-                        <Text style={styles.footerLink}>Política de privacidad</Text>
-                        <Text style={styles.footerLink}>Términos de servicio</Text>
-                        <Text style={styles.footerLink}>Política de cookies</Text>
+                        <TouchableOpacity onPress={() => router.replace('/privacy')}>
+                          <Text style={styles.footerLink}>Política de privacidad</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.replace('/terms')}>
+                          <Text style={styles.footerLink}>Términos de servicio</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => router.replace('/cookies')}>
+                          <Text style={styles.footerLink}>Política de cookies</Text>
+                        </TouchableOpacity>
                       </View>
                       <View style={styles.footerCol}>
                         <Text style={styles.footerColTitle}>CONTACTO</Text>
-                        <Text style={styles.footerLink}>Formulario de contacto</Text>
-                        <Text style={styles.footerLink}>soporte@receplus.com</Text>
-                        <Text style={styles.footerLink}>+1 (555) 123-4567</Text>
+                        <TouchableOpacity onPress={() => router.replace('/contact')}>
+                          <Text style={styles.footerLink}>Formulario de contacto</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                          // Abrir mail
+                          if (Platform.OS === 'web') {
+                            window.location.href = 'mailto:soporte@receplus.com';
+                          }
+                        }}>
+                          <Text style={styles.footerLink}>soporte@receplus.com</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                          // Abrir teléfono
+                          if (Platform.OS === 'web') {
+                            window.location.href = 'tel:+15551234567';
+                          }
+                        }}>
+                          <Text style={styles.footerLink}>+1 (555) 123-4567</Text>
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <View style={styles.footerCopyright}>
@@ -358,42 +352,42 @@ export default function Recipes() {
       <View style={styles.bottomNav}>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/' && styles.activeNavItem]} 
-          onPress={() => router.push('/')}
+          onPress={() => router.replace('/')}
         >
           <Ionicons name="home-outline" size={24} color={pathname === '/' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/' && styles.activeNavText]}>Inicio</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/recipes' && styles.activeNavItem]} 
-          onPress={() => router.push('/recipes')}
+          onPress={() => router.replace('/recipes')}
         >
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/dashboard' && styles.activeNavItem]} 
-          onPress={() => router.push('/dashboard')}
+          onPress={() => router.replace('/dashboard')}
         >
           <Ionicons name="bar-chart-outline" size={24} color={pathname === '/dashboard' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/dashboard' && styles.activeNavText]}>Dashboard</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 
-          onPress={() => router.push('/preferences')}
+          onPress={() => router.replace('/preferences')}
         >
           <Ionicons name="settings-outline" size={24} color={pathname === '/preferences' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/preferences' && styles.activeNavText]}>Preferencias</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/membership' && styles.activeNavItem]} 
-          onPress={() => router.push('/membership')}
+          onPress={() => router.replace('/membership')}
         >
           <Ionicons name="person-outline" size={24} color={pathname === '/membership' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/membership' && styles.activeNavText]}>Membresía</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/contact' && styles.activeNavItem]} 
-          onPress={() => router.push('/contact')}
+          onPress={() => router.replace('/contact')}
         >
           <Ionicons name="mail-outline" size={24} color={pathname === '/contact' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/contact' && styles.activeNavText]}>Contacto</Text>

@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar, TextInput } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 export default function Preferences() {
   const pathname = usePathname();
@@ -9,60 +9,74 @@ export default function Preferences() {
   const [otherFoods, setOtherFoods] = useState('');
   const [otherRestrictions, setOtherRestrictions] = useState('');
 
+  // Estados para checkboxes (tipados)
+  const [selectedRestrictions, setSelectedRestrictions] = useState<string[]>([]);
+  const [selectedAllergies, setSelectedAllergies] = useState<string[]>([]);
+  const [selectedNotPreferred, setSelectedNotPreferred] = useState<string[]>([]);
+  const [selectedFlavors, setSelectedFlavors] = useState<string[]>([]);
+  const [selectedFavorites, setSelectedFavorites] = useState<string[]>([]);
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  const [selectedSpicy, setSelectedSpicy] = useState<string>('');
+
+  // Helpers
+  const toggleItem = (item: string, selected: string[], setSelected: React.Dispatch<React.SetStateAction<string[]>>) => {
+    if (selected.includes(item)) {
+      setSelected(selected.filter((i: string) => i !== item));
+    } else {
+      setSelected([...selected, item]);
+    }
+  };
+
+  const handleNavButton = (direction: 'next' | 'prev') => {
+    if (activeTab === 'favorites' && direction === 'next') setActiveTab('notPreferred');
+    else if (activeTab === 'notPreferred' && direction === 'next') setActiveTab('restrictions');
+    else if (activeTab === 'restrictions' && direction === 'next') setActiveTab('favorites');
+    else if (activeTab === 'notPreferred' && direction === 'prev') setActiveTab('favorites');
+    else if (activeTab === 'restrictions' && direction === 'prev') setActiveTab('notPreferred');
+    else if (activeTab === 'favorites' && direction === 'prev') setActiveTab('restrictions');
+  };
+
+  const handleFooterNav = (route: string) => {
+    router.push(route);
+  };
+
   const renderContent = () => {
     if (activeTab === 'restrictions') {
       return (
         <View style={styles.formContainer}>
           <Text style={styles.sectionTitle}>¿Tienes alguna restricción dietética?</Text>
+          {/* Mostrar seleccionados */}
+          {selectedRestrictions.length > 0 && (
+            <View style={{marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap'}}>
+              {selectedRestrictions.map(r => (
+                <View key={r} style={{backgroundColor:'#e8f5e9', borderRadius:8, padding:6, marginRight:6, marginBottom:4}}><Text style={{color:'#2e7d32'}}>{r}</Text></View>
+              ))}
+            </View>
+          )}
           <View style={styles.checkboxGroup}>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Vegetariano</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Vegano</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Sin gluten</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Sin lactosa</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Keto</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Paleo</Text>
-            </TouchableOpacity>
+            {['Vegetariano','Vegano','Sin gluten','Sin lactosa','Keto','Paleo'].map(opt => (
+              <TouchableOpacity key={opt} style={styles.checkboxItem} onPress={() => toggleItem(opt, selectedRestrictions, setSelectedRestrictions)}>
+                <View style={[styles.checkbox, selectedRestrictions.includes(opt) && {backgroundColor:'#2e7d32', borderColor:'#2e7d32'}]} />
+                <Text style={styles.checkboxLabel}>{opt}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <Text style={styles.sectionTitle}>¿Tienes alguna alergia alimentaria?</Text>
+          {selectedAllergies.length > 0 && (
+            <View style={{marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap'}}>
+              {selectedAllergies.map(r => (
+                <View key={r} style={{backgroundColor:'#e8f5e9', borderRadius:8, padding:6, marginRight:6, marginBottom:4}}><Text style={{color:'#2e7d32'}}>{r}</Text></View>
+              ))}
+            </View>
+          )}
           <View style={styles.checkboxGroup}>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Frutos secos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Mariscos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Huevo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Soya</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Trigo</Text>
-            </TouchableOpacity>
+            {['Frutos secos','Mariscos','Huevo','Soya','Trigo'].map(opt => (
+              <TouchableOpacity key={opt} style={styles.checkboxItem} onPress={() => toggleItem(opt, selectedAllergies, setSelectedAllergies)}>
+                <View style={[styles.checkbox, selectedAllergies.includes(opt) && {backgroundColor:'#2e7d32', borderColor:'#2e7d32'}]} />
+                <Text style={styles.checkboxLabel}>{opt}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <Text style={styles.sectionTitle}>Otras restricciones o alergias</Text>
@@ -76,11 +90,11 @@ export default function Preferences() {
           />
 
           <View style={styles.navigationButtons}>
-            <TouchableOpacity style={styles.navButton}>
+            <TouchableOpacity style={styles.navButton} onPress={() => handleNavButton('prev')}>
               <Text style={styles.navButtonText}>Anterior</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.navButton, styles.navButtonPrimary]}>
-              <Text style={styles.navButtonTextPrimary}>Guardar preferencias</Text>
+            <TouchableOpacity style={[styles.navButton, styles.navButtonPrimary]} onPress={() => handleNavButton('next')}>
+              <Text style={styles.navButtonTextPrimary}>{activeTab === 'restrictions' ? 'Guardar preferencias' : 'Siguiente'}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -90,51 +104,37 @@ export default function Preferences() {
       return (
         <View style={styles.formContainer}>
           <Text style={styles.sectionTitle}>¿Qué alimentos no te gustan?</Text>
+          {selectedNotPreferred.length > 0 && (
+            <View style={{marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap'}}>
+              {selectedNotPreferred.map(r => (
+                <View key={r} style={{backgroundColor:'#e8f5e9', borderRadius:8, padding:6, marginRight:6, marginBottom:4}}><Text style={{color:'#2e7d32'}}>{r}</Text></View>
+              ))}
+            </View>
+          )}
           <View style={styles.checkboxGroup}>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Champiñones</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Mariscos</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Cilantro</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Brócoli</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Berenjenas</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Aceitunas</Text>
-            </TouchableOpacity>
+            {['Champiñones','Mariscos','Cilantro','Brócoli','Berenjenas','Aceitunas'].map(opt => (
+              <TouchableOpacity key={opt} style={styles.checkboxItem} onPress={() => toggleItem(opt, selectedNotPreferred, setSelectedNotPreferred)}>
+                <View style={[styles.checkbox, selectedNotPreferred.includes(opt) && {backgroundColor:'#2e7d32', borderColor:'#2e7d32'}]} />
+                <Text style={styles.checkboxLabel}>{opt}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <Text style={styles.sectionTitle}>¿Qué sabores prefieres evitar?</Text>
+          {selectedFlavors.length > 0 && (
+            <View style={{marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap'}}>
+              {selectedFlavors.map(r => (
+                <View key={r} style={{backgroundColor:'#e8f5e9', borderRadius:8, padding:6, marginRight:6, marginBottom:4}}><Text style={{color:'#2e7d32'}}>{r}</Text></View>
+              ))}
+            </View>
+          )}
           <View style={styles.checkboxGroup}>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Amargo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Ácido</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Dulce</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkboxItem}>
-              <View style={styles.checkbox} />
-              <Text style={styles.checkboxLabel}>Muy salado</Text>
-            </TouchableOpacity>
+            {['Amargo','Ácido','Dulce','Muy salado'].map(opt => (
+              <TouchableOpacity key={opt} style={styles.checkboxItem} onPress={() => toggleItem(opt, selectedFlavors, setSelectedFlavors)}>
+                <View style={[styles.checkbox, selectedFlavors.includes(opt) && {backgroundColor:'#2e7d32', borderColor:'#2e7d32'}]} />
+                <Text style={styles.checkboxLabel}>{opt}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
 
           <Text style={styles.sectionTitle}>Otros alimentos que no te gustan</Text>
@@ -148,99 +148,64 @@ export default function Preferences() {
           />
 
           <View style={styles.navigationButtons}>
-            <TouchableOpacity style={styles.navButton}>
+            <TouchableOpacity style={styles.navButton} onPress={() => handleNavButton('prev')}>
               <Text style={styles.navButtonText}>Anterior</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.navButton, styles.navButtonPrimary]}>
+            <TouchableOpacity style={[styles.navButton, styles.navButtonPrimary]} onPress={() => handleNavButton('next')}>
               <Text style={styles.navButtonTextPrimary}>Siguiente</Text>
             </TouchableOpacity>
           </View>
         </View>
       );
     }
+    // Favoritos
     return (
       <View style={styles.formContainer}>
         <Text style={styles.sectionTitle}>¿Cuáles son tus tipos de comida favoritos?</Text>
+        {selectedFavorites.length > 0 && (
+          <View style={{marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap'}}>
+            {selectedFavorites.map(r => (
+              <View key={r} style={{backgroundColor:'#e8f5e9', borderRadius:8, padding:6, marginRight:6, marginBottom:4}}><Text style={{color:'#2e7d32'}}>{r}</Text></View>
+            ))}
+          </View>
+        )}
         <View style={styles.checkboxGroup}>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Italiana</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Mexicana</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Asiática</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Mediterránea</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Americana</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>India</Text>
-          </TouchableOpacity>
+          {['Italiana','Mexicana','Asiática','Mediterránea','Americana','India'].map(opt => (
+            <TouchableOpacity key={opt} style={styles.checkboxItem} onPress={() => toggleItem(opt, selectedFavorites, setSelectedFavorites)}>
+              <View style={[styles.checkbox, selectedFavorites.includes(opt) && {backgroundColor:'#2e7d32', borderColor:'#2e7d32'}]} />
+              <Text style={styles.checkboxLabel}>{opt}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <Text style={styles.sectionTitle}>¿Qué ingredientes principales prefieres?</Text>
+        {selectedIngredients.length > 0 && (
+          <View style={{marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap'}}>
+            {selectedIngredients.map(r => (
+              <View key={r} style={{backgroundColor:'#e8f5e9', borderRadius:8, padding:6, marginRight:6, marginBottom:4}}><Text style={{color:'#2e7d32'}}>{r}</Text></View>
+            ))}
+          </View>
+        )}
         <View style={styles.checkboxGroup}>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Pollo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Res</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Cerdo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Pescado</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Vegetales</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkboxItem}>
-            <View style={styles.checkbox} />
-            <Text style={styles.checkboxLabel}>Legumbres</Text>
-          </TouchableOpacity>
+          {['Pollo','Res','Cerdo','Pescado','Vegetales','Legumbres'].map(opt => (
+            <TouchableOpacity key={opt} style={styles.checkboxItem} onPress={() => toggleItem(opt, selectedIngredients, setSelectedIngredients)}>
+              <View style={[styles.checkbox, selectedIngredients.includes(opt) && {backgroundColor:'#2e7d32', borderColor:'#2e7d32'}]} />
+              <Text style={styles.checkboxLabel}>{opt}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
         <Text style={styles.sectionTitle}>¿Qué nivel de picante prefieres?</Text>
         <View style={styles.radioGroup}>
-          <TouchableOpacity style={styles.radioItem}>
-            <View style={styles.radioButton} />
-            <Text style={styles.radioLabel}>Nada picante</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.radioItem}>
-            <View style={styles.radioButton} />
-            <Text style={styles.radioLabel}>Suave</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.radioItem}>
-            <View style={[styles.radioButton, styles.radioButtonActive]} />
-            <Text style={styles.radioLabel}>Medio</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.radioItem}>
-            <View style={styles.radioButton} />
-            <Text style={styles.radioLabel}>Picante</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.radioItem}>
-            <View style={styles.radioButton} />
-            <Text style={styles.radioLabel}>Muy picante</Text>
-          </TouchableOpacity>
+          {['Nada picante','Suave','Medio','Picante','Muy picante'].map(opt => (
+            <TouchableOpacity key={opt} style={styles.radioItem} onPress={() => setSelectedSpicy(opt)}>
+              <View style={[styles.radioButton, selectedSpicy === opt && styles.radioButtonActive]} />
+              <Text style={styles.radioLabel}>{opt}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        <TouchableOpacity style={styles.nextButton}>
+        <TouchableOpacity style={styles.nextButton} onPress={() => handleNavButton('next')}>
           <Text style={styles.nextButtonText}>Siguiente</Text>
         </TouchableOpacity>
       </View>
@@ -252,8 +217,10 @@ export default function Preferences() {
       {/* Header */}
       <View style={[styles.header, {justifyContent: 'flex-start'}]}>
         <View style={styles.logoContainer}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.logoTitle}>RecePlus</Text>
+          <TouchableOpacity onPress={() => router.push('/')} style={{flexDirection:'row',alignItems:'center'}} activeOpacity={0.8}>
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.logoTitle}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -303,11 +270,11 @@ export default function Preferences() {
             </View>
             <View style={styles.footerCol}>
               <Text style={styles.footerColTitle}>NAVEGACIÓN</Text>
-              <Text style={styles.footerLink}>Inicio</Text>
-              <Text style={styles.footerLink}>Recetas</Text>
-              <Text style={styles.footerLink}>Preferencias</Text>
-              <Text style={styles.footerLink}>Membresía</Text>
-              <Text style={styles.footerLink}>Contacto</Text>
+              <TouchableOpacity onPress={() => handleFooterNav('/')}> <Text style={styles.footerLink}>Inicio</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleFooterNav('/recipes')}> <Text style={styles.footerLink}>Recetas</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleFooterNav('/preferences')}> <Text style={styles.footerLink}>Preferencias</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleFooterNav('/membership')}> <Text style={styles.footerLink}>Membresía</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleFooterNav('/contact')}> <Text style={styles.footerLink}>Contacto</Text> </TouchableOpacity>
             </View>
             <View style={styles.footerCol}>
               <Text style={styles.footerColTitle}>LEGAL</Text>

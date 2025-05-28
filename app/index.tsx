@@ -10,8 +10,10 @@ export default function Home() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.title}>RecePlus</Text>
+          <TouchableOpacity onPress={() => router.push('/')} style={{flexDirection:'row',alignItems:'center'}} activeOpacity={0.8}>
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.title}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.authButtons}>
           <Link href="/LoginScreen" style={styles.authButton}>
@@ -35,10 +37,10 @@ export default function Home() {
               RecePlus te ayuda a encontrar recetas perfectas basadas en tus preferencias culinarias y los ingredientes que tienes disponibles.
             </Text>
             <View style={styles.heroButtons}>
-              <TouchableOpacity style={styles.primaryButton}>
+              <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/preferences')}>
                 <Text style={styles.buttonText}>Comenzar ahora</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.secondaryButton}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push('/recipes')}>
                 <Text style={styles.buttonText}>Explorar recetas</Text>
               </TouchableOpacity>
             </View>
@@ -154,7 +156,7 @@ export default function Home() {
           <Text style={styles.ctaDescriptionCustom}>
             Regístrate hoy y comienza a explorar recetas personalizadas para ti.
           </Text>
-          <TouchableOpacity style={styles.ctaButtonCustom}>
+          <TouchableOpacity style={styles.ctaButtonCustom} onPress={() => router.push('/RegisterScreen')}>
             <Text style={styles.ctaButtonTextCustom}>Crear cuenta gratis</Text>
           </TouchableOpacity>
         </View>
@@ -220,6 +222,13 @@ export default function Home() {
         >
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/dashboard' && styles.activeNavItem]} 
+          onPress={() => router.push('/dashboard')}
+        >
+          <Ionicons name="bar-chart-outline" size={24} color={pathname === '/dashboard' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/dashboard' && styles.activeNavText]}>Dashboard</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { usePathname, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -57,6 +57,34 @@ export default function Dashboard() {
             <Text style={styles.statValue}>{count}</Text>
           </View>
         ))}
+        {/* Footer Navegación, Legal y Contacto */}
+        <View style={{marginTop: 40, borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 24, paddingBottom: 80, paddingHorizontal: 10, backgroundColor: '#fff'}}>
+          <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8}}>
+            <View style={{flex: 1, minWidth: 130, maxWidth: 160, marginRight: 5}}>
+              <Text style={{fontWeight: 'bold', fontSize: 15, marginBottom: 8, color: '#222', letterSpacing: 1}}>NAVEGACIÓN</Text>
+              <TouchableOpacity onPress={() => router.push('/')}> <Text style={styles.footerLink}>Inicio</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/recipes')}> <Text style={styles.footerLink}>Recetas</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/preferences')}> <Text style={styles.footerLink}>Preferencias</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/membership')}> <Text style={styles.footerLink}>Membresía</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/contact')}> <Text style={styles.footerLink}>Contacto</Text> </TouchableOpacity>
+            </View>
+            <View style={{flex: 1, minWidth: 130, maxWidth: 160, marginRight: 5}}>
+              <Text style={{fontWeight: 'bold', fontSize: 15, marginBottom: 8, color: '#222', letterSpacing: 1}}>LEGAL</Text>
+              <Text style={styles.footerLink}>Política de privacidad</Text>
+              <Text style={styles.footerLink}>Términos de servicio</Text>
+              <Text style={styles.footerLink}>Política de cookies</Text>
+            </View>
+            <View style={{flex: 1, minWidth: 130, maxWidth: 160, marginRight: 5}}>
+              <Text style={{fontWeight: 'bold', fontSize: 15, marginBottom: 8, color: '#222', letterSpacing: 1}}>CONTACTO</Text>
+              <TouchableOpacity onPress={() => router.push('/contact')}> <Text style={styles.footerLink}>Formulario de contacto</Text> </TouchableOpacity>
+              <TouchableOpacity onPress={() => {}}><Text style={styles.footerLink}>soporte@receplus.com</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => {}}><Text style={styles.footerLink}>+1 (555) 123-4567</Text></TouchableOpacity>
+            </View>
+          </View>
+          <View style={{borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 10, marginBottom: 20, alignItems: 'center', marginTop: 8}}>
+            <Text style={{color: '#888', fontSize: 13, textAlign: 'center'}}>© 2025 RecePlus. Todos los derechos reservados.</Text>
+          </View>
+        </View>
       </ScrollView>
       <View style={styles.bottomNav}>
         <Ionicons name="home-outline" size={24} color={pathname === '/' ? '#22c55e' : '#2e7d32'} onPress={() => router.push('/')} />
@@ -83,4 +111,5 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: 15, color: '#444' },
   statValue: { fontWeight: 'bold', color: '#22c55e' },
   bottomNav: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee', paddingVertical: 10, position: 'absolute', left: 0, right: 0, bottom: 0 },
+  footerLink: { fontSize: 14, color: '#2e7d32', marginBottom: 6 },
 });

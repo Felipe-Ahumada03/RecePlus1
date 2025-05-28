@@ -10,8 +10,10 @@ export default function Membership() {
       {/* Header */}
       <View style={[styles.header, {justifyContent: 'flex-start'}]}>
         <View style={styles.logoContainer}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.logoTitle}>RecePlus</Text>
+          <TouchableOpacity onPress={() => router.push('/')} style={{flexDirection:'row',alignItems:'center'}} activeOpacity={0.8}>
+            <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+            <Text style={styles.logoTitle}>RecePlus</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -70,7 +72,7 @@ export default function Membership() {
               <Text style={styles.featureText}>Lista de compras inteligente</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.subscribeButton}>
+          <TouchableOpacity style={styles.subscribeButton} onPress={() => router.push('/payment')}>
             <Text style={styles.subscribeButtonText}>Suscribirse</Text>
           </TouchableOpacity>
         </View>
@@ -98,7 +100,7 @@ export default function Membership() {
               <Text style={styles.featureText}>Calculadora de nutrición avanzada</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.subscribeButton}>
+          <TouchableOpacity style={styles.subscribeButton} onPress={() => router.push('/payment')}>
             <Text style={styles.subscribeButtonText}>Suscribirse</Text>
           </TouchableOpacity>
         </View>
@@ -124,7 +126,7 @@ export default function Membership() {
         <View style={[styles.welcomeSection, { marginTop: 30, marginHorizontal: 20 }]}>
           <Text style={styles.welcomeTitle}>¿Listo para mejorar tu experiencia culinaria?</Text>
           <Text style={styles.welcomeText}>Únete a miles de entusiastas de la cocina que ya disfrutan de nuestras recetas premium y funciones exclusivas.</Text>
-          <TouchableOpacity style={styles.startButton} onPress={() => {}}>
+          <TouchableOpacity style={styles.startButton} onPress={() => router.push('/RegisterScreen')}>
             <Text style={styles.startButtonText}>Comenzar ahora</Text>
           </TouchableOpacity>
         </View>

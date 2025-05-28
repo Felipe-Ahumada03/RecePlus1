@@ -35,28 +35,57 @@ export default function Dashboard() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-        <Text style={styles.title}>Dashboard</Text>
+        <Text style={styles.title}>¡Bienvenido a RecePlus!</Text>
       </View>
       <ScrollView style={styles.content}>
-        <Text style={styles.sectionTitle}>Resumen</Text>
+        <View style={styles.welcomeBox}>
+          <Text style={styles.welcomeTitle}>Tu dashboard culinario</Text>
+          <Text style={styles.welcomeSubtitle}>Descubre tu progreso, estadísticas y recomendaciones personalizadas.</Text>
+        </View>
         <View style={styles.cardRow}>
-          <View style={styles.card}><Text style={styles.cardValue}>{recipes.length}</Text><Text style={styles.cardLabel}>Recetas</Text></View>
-          <View style={styles.card}><Text style={styles.cardValue}>{categories.length}</Text><Text style={styles.cardLabel}>Categorías</Text></View>
+          <View style={styles.card}>
+            <Ionicons name="book-outline" size={32} color="#22c55e" style={{marginBottom: 6}} />
+            <Text style={styles.cardValue}>{recipes.length}</Text>
+            <Text style={styles.cardLabel}>Recetas</Text>
+          </View>
+          <View style={styles.card}>
+            <Ionicons name="grid-outline" size={32} color="#22c55e" style={{marginBottom: 6}} />
+            <Text style={styles.cardValue}>{categories.length}</Text>
+            <Text style={styles.cardLabel}>Categorías</Text>
+          </View>
+          <View style={styles.card}>
+            <Ionicons name="star-outline" size={32} color="#22c55e" style={{marginBottom: 6}} />
+            <Text style={styles.cardValue}>3</Text>
+            <Text style={styles.cardLabel}>Favoritos</Text>
+          </View>
+        </View>
+        <View style={styles.progressBox}>
+          <Text style={styles.progressTitle}>Progreso semanal</Text>
+          <View style={styles.progressBarBg}>
+            <View style={[styles.progressBarFill, {width: '60%'}]} />
+          </View>
+          <Text style={styles.progressText}>6 de 10 recetas cocinadas esta semana</Text>
         </View>
         <Text style={styles.sectionTitle}>Recetas por categoría</Text>
-        {categories.map(cat => (
-          <View key={cat} style={styles.statRow}>
-            <Text style={styles.statLabel}>{cat}</Text>
-            <Text style={styles.statValue}>{recipes.filter(r => r.category === cat).length}</Text>
-          </View>
-        ))}
+        <View style={styles.categoryList}>
+          {categories.map(cat => (
+            <View key={cat} style={styles.categoryItem}>
+              <Ionicons name="restaurant-outline" size={20} color="#22c55e" style={{marginRight: 6}} />
+              <Text style={styles.statLabel}>{cat}</Text>
+              <Text style={styles.statValue}>{recipes.filter(r => r.category === cat).length}</Text>
+            </View>
+          ))}
+        </View>
         <Text style={styles.sectionTitle}>Ingredientes más usados</Text>
-        {topIngredients.map(([ing, count]) => (
-          <View key={ing} style={styles.statRow}>
-            <Text style={styles.statLabel}>{ing}</Text>
-            <Text style={styles.statValue}>{count}</Text>
-          </View>
-        ))}
+        <View style={styles.ingredientList}>
+          {topIngredients.map(([ing, count]) => (
+            <View key={ing} style={styles.ingredientItem}>
+              <Ionicons name="leaf-outline" size={20} color="#22c55e" style={{marginRight: 6}} />
+              <Text style={styles.statLabel}>{ing}</Text>
+              <Text style={styles.statValue}>{count}</Text>
+            </View>
+          ))}
+        </View>
         {/* Footer Navegación, Legal y Contacto */}
         <View style={{marginTop: 40, borderTopWidth: 1, borderTopColor: '#eee', paddingTop: 24, paddingBottom: 80, paddingHorizontal: 10, backgroundColor: '#fff'}}>
           <View style={{flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 8}}>
@@ -102,11 +131,104 @@ const styles = StyleSheet.create({
   logo: { width: 32, height: 32, marginRight: 10 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#2e7d32' },
   content: { padding: 20 },
+  welcomeBox: {
+    backgroundColor: '#e8f5e9',
+    borderRadius: 12,
+    padding: 18,
+    marginBottom: 18,
+    alignItems: 'center',
+  },
+  welcomeTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#22c55e',
+    marginBottom: 4,
+  },
+  welcomeSubtitle: {
+    fontSize: 15,
+    color: '#444',
+    textAlign: 'center',
+  },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 20, marginBottom: 10 },
-  cardRow: { flexDirection: 'row', gap: 16, marginBottom: 20 },
-  card: { flex: 1, backgroundColor: '#e8f5e9', borderRadius: 10, alignItems: 'center', padding: 16 },
+  cardRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 20,
+    justifyContent: 'space-between',
+  },
+  card: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    alignItems: 'center',
+    padding: 16,
+    marginHorizontal: 2,
+    elevation: 2,
+    shadowColor: '#22c55e',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: '#e8f5e9',
+  },
   cardValue: { fontSize: 28, fontWeight: 'bold', color: '#22c55e' },
   cardLabel: { fontSize: 14, color: '#2e7d32' },
+  progressBox: {
+    backgroundColor: '#f0fdf4',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 22,
+    alignItems: 'center',
+  },
+  progressTitle: {
+    fontWeight: 'bold',
+    color: '#2e7d32',
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  progressBarBg: {
+    width: '100%',
+    height: 12,
+    backgroundColor: '#e8f5e9',
+    borderRadius: 8,
+    marginBottom: 8,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: 12,
+    backgroundColor: '#22c55e',
+    borderRadius: 8,
+  },
+  progressText: {
+    color: '#444',
+    fontSize: 13,
+  },
+  categoryList: {
+    marginBottom: 18,
+  },
+  categoryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f6fef9',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e8f5e9',
+  },
+  ingredientList: {
+    marginBottom: 18,
+  },
+  ingredientItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f6fef9',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#e8f5e9',
+  },
   statRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   statLabel: { fontSize: 15, color: '#444' },
   statValue: { fontWeight: 'bold', color: '#22c55e' },

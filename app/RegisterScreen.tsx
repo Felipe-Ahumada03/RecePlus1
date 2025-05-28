@@ -80,7 +80,7 @@ export default function RegisterScreen({ navigation }: any) {
           </Text>
           <View style={styles.bottomRow}>
             <Text style={styles.bottomText}>¿Ya tienes una cuenta? </Text>
-            <TouchableOpacity onPress={() => navigation?.navigate('LoginScreen')}>
+            <TouchableOpacity onPress={() => router.replace('/LoginScreen')}>
               <Text style={styles.loginText}>Inicia sesión</Text>
             </TouchableOpacity>
           </View>

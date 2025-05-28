@@ -1,12 +1,103 @@
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar, TextInput } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
 
 export default function Recipes() {
   const pathname = usePathname();
   const [searchType, setSearchType] = useState('recipes'); // 'recipes' o 'ingredients'
   const [selectedIngredients, setSelectedIngredients] = useState([]);
+  const [decisionStep, setDecisionStep] = useState(0);
+  const [decisionAnswers, setDecisionAnswers] = useState<any>({});
+  const [showDecisionSearch, setShowDecisionSearch] = useState(false);
+
+  // Estado para recomendaciones
+  const [recommendations, setRecommendations] = useState<any[]>([]);
+
+  // Árbol de decisión simple para ejemplo
+  const decisionTree = [
+    {
+      question: '¿Qué ingrediente principal quieres?',
+      key: 'ingrediente',
+      options: ['Pollo', 'Pasta', 'Atún'],
+    },
+    {
+      question: '¿Qué dificultad prefieres?',
+      key: 'dificultad',
+      options: ['Fácil', 'Media'],
+    },
+    {
+      question: '¿Qué tipo de comida buscas?',
+      key: 'categoria',
+      options: ['Italiana', 'Mexicana', 'Mediterránea'],
+    },
+  ];
+
+  // Recetas de ejemplo (puedes reemplazar por tus datos reales)
+  const allRecipes = [
+    {
+      nombre: 'Pasta Carbonara',
+      ingrediente: 'Pasta',
+      dificultad: 'Fácil',
+      categoria: 'Italiana',
+    },
+    {
+      nombre: 'Tacos de Pollo',
+      ingrediente: 'Pollo',
+      dificultad: 'Media',
+      categoria: 'Mexicana',
+    },
+    {
+      nombre: 'Ensalada Mediterránea',
+      ingrediente: 'Atún',
+      dificultad: 'Fácil',
+      categoria: 'Mediterránea',
+    },
+  ];
+
+  const filteredRecipes = allRecipes.filter(r => {
+    return Object.entries(decisionAnswers).every(([k, v]) => (r as any)[k] === v);
+  });
+
+  const renderDecisionSearch = () => {
+    if (decisionStep < decisionTree.length) {
+      const step = decisionTree[decisionStep];
+      return (
+        <View style={{margin: 20, backgroundColor: '#e8f5e9', borderRadius: 10, padding: 16}}>
+          <Text style={{fontWeight: 'bold', marginBottom: 10}}>{step.question}</Text>
+          {step.options.map(opt => (
+            <TouchableOpacity
+              key={opt}
+              style={{backgroundColor: '#2e7d32', borderRadius: 8, padding: 10, marginBottom: 8}}
+              onPress={() => {
+                setDecisionAnswers({ ...decisionAnswers, [step.key]: opt });
+                setDecisionStep(decisionStep + 1);
+              }}
+            >
+              <Text style={{color: '#fff'}}>{opt}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      );
+    } else {
+      return (
+        <View style={{margin: 20, backgroundColor: '#e8f5e9', borderRadius: 10, padding: 16}}>
+          <Text style={{fontWeight: 'bold', marginBottom: 10}}>Recetas sugeridas:</Text>
+          {filteredRecipes.length === 0 && <Text>No se encontraron recetas.</Text>}
+          {filteredRecipes.map(r => (
+            <Text key={r.nombre} style={{marginBottom: 6}}>{r.nombre} ({r.categoria}, {r.dificultad})</Text>
+          ))}
+          <TouchableOpacity style={{marginTop: 10}} onPress={() => {
+            setDecisionStep(0);
+            setDecisionAnswers({});
+            setShowDecisionSearch(false);
+          }}>
+            <Text style={{color: '#2e7d32'}}>Volver</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  };
 
   const renderSearchContent = () => {
     if (searchType === 'ingredients') {
@@ -53,6 +144,18 @@ export default function Recipes() {
     );
   };
 
+  // Actualiza recomendaciones cada vez que el usuario hace una búsqueda guiada
+  useEffect(() => {
+    if (!showDecisionSearch && Object.keys(decisionAnswers).length > 0) {
+      // Recomienda recetas similares a la última búsqueda guiada
+      const similar = allRecipes.filter(r => {
+        // Coincidencia parcial: al menos 1 respuesta igual
+        return Object.entries(decisionAnswers).some(([k, v]) => (r as any)[k] === v);
+      });
+      setRecommendations(similar);
+    }
+  }, [showDecisionSearch, decisionAnswers]);
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -92,9 +195,37 @@ export default function Recipes() {
               searchType === 'ingredients' && styles.searchButtonTextActive
             ]}>Buscar por ingredientes</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.searchButton,
+              showDecisionSearch && styles.searchButtonActive
+            ]}
+            onPress={() => {
+              setShowDecisionSearch(true);
+              setDecisionStep(0);
+              setDecisionAnswers({});
+            }}
+          >
+            <Text style={[
+              styles.searchButtonText,
+              showDecisionSearch && styles.searchButtonTextActive
+            ]}>Búsqueda guiada</Text>
+          </TouchableOpacity>
         </View>
 
-        {renderSearchContent()}
+        {showDecisionSearch && renderDecisionSearch()}
+
+        {/* Recomendaciones personalizadas */}
+        {recommendations.length > 0 && !showDecisionSearch && (
+          <View style={{marginHorizontal: 20, marginBottom: 20}}>
+            <Text style={{fontWeight: 'bold', fontSize: 16, marginBottom: 8, color: '#2e7d32'}}>Recomendaciones para ti</Text>
+            {recommendations.map(r => (
+              <View key={r.nombre} style={{marginBottom: 8}}>
+                <Text>{r.nombre} ({r.categoria}, {r.dificultad})</Text>
+              </View>
+            ))}
+          </View>
+        )}
 
         {searchType === 'recipes' && (
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tagsScroll}>
@@ -238,6 +369,13 @@ export default function Recipes() {
         >
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.navItem, pathname === '/dashboard' && styles.activeNavItem]} 
+          onPress={() => router.push('/dashboard')}
+        >
+          <Ionicons name="bar-chart-outline" size={24} color={pathname === '/dashboard' ? '#22c55e' : '#2e7d32'} />
+          <Text style={[styles.navText, pathname === '/dashboard' && styles.activeNavText]}>Dashboard</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 

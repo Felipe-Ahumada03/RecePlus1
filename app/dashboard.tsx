@@ -1,0 +1,86 @@
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { usePathname, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+const recipes = [
+  {
+    name: 'Pasta Carbonara',
+    category: 'Italiana',
+    ingredients: ['Pasta', 'Huevo', 'Panceta'],
+  },
+  {
+    name: 'Tacos de Pollo',
+    category: 'Mexicana',
+    ingredients: ['Pollo', 'Tortilla', 'Salsa'],
+  },
+  {
+    name: 'Ensalada Mediterránea',
+    category: 'Mediterránea',
+    ingredients: ['Atún', 'Tomate', 'Lechuga'],
+  },
+];
+
+const categories = Array.from(new Set(recipes.map(r => r.category)));
+const ingredientCount: Record<string, number> = {};
+recipes.forEach(r => r.ingredients.forEach(i => {
+  ingredientCount[i] = (ingredientCount[i] || 0) + 1;
+}));
+const topIngredients = Object.entries(ingredientCount)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 3);
+
+export default function Dashboard() {
+  const pathname = usePathname();
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
+        <Text style={styles.title}>Dashboard</Text>
+      </View>
+      <ScrollView style={styles.content}>
+        <Text style={styles.sectionTitle}>Resumen</Text>
+        <View style={styles.cardRow}>
+          <View style={styles.card}><Text style={styles.cardValue}>{recipes.length}</Text><Text style={styles.cardLabel}>Recetas</Text></View>
+          <View style={styles.card}><Text style={styles.cardValue}>{categories.length}</Text><Text style={styles.cardLabel}>Categorías</Text></View>
+        </View>
+        <Text style={styles.sectionTitle}>Recetas por categoría</Text>
+        {categories.map(cat => (
+          <View key={cat} style={styles.statRow}>
+            <Text style={styles.statLabel}>{cat}</Text>
+            <Text style={styles.statValue}>{recipes.filter(r => r.category === cat).length}</Text>
+          </View>
+        ))}
+        <Text style={styles.sectionTitle}>Ingredientes más usados</Text>
+        {topIngredients.map(([ing, count]) => (
+          <View key={ing} style={styles.statRow}>
+            <Text style={styles.statLabel}>{ing}</Text>
+            <Text style={styles.statValue}>{count}</Text>
+          </View>
+        ))}
+      </ScrollView>
+      <View style={styles.bottomNav}>
+        <Ionicons name="home-outline" size={24} color={pathname === '/' ? '#22c55e' : '#2e7d32'} onPress={() => router.push('/')} />
+        <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} onPress={() => router.push('/recipes')} />
+        <Ionicons name="bar-chart-outline" size={24} color={pathname === '/dashboard' ? '#22c55e' : '#2e7d32'} onPress={() => router.push('/dashboard')} />
+        <Ionicons name="settings-outline" size={24} color={pathname === '/preferences' ? '#22c55e' : '#2e7d32'} onPress={() => router.push('/preferences')} />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#fff' },
+  header: { flexDirection: 'row', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  logo: { width: 32, height: 32, marginRight: 10 },
+  title: { fontSize: 22, fontWeight: 'bold', color: '#2e7d32' },
+  content: { padding: 20 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginTop: 20, marginBottom: 10 },
+  cardRow: { flexDirection: 'row', gap: 16, marginBottom: 20 },
+  card: { flex: 1, backgroundColor: '#e8f5e9', borderRadius: 10, alignItems: 'center', padding: 16 },
+  cardValue: { fontSize: 28, fontWeight: 'bold', color: '#22c55e' },
+  cardLabel: { fontSize: 14, color: '#2e7d32' },
+  statRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  statLabel: { fontSize: 15, color: '#444' },
+  statValue: { fontWeight: 'bold', color: '#22c55e' },
+  bottomNav: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#eee', paddingVertical: 10, position: 'absolute', left: 0, right: 0, bottom: 0 },
+});

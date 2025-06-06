@@ -1,74 +1,132 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity
+} from 'react-native';
 
 export default function RecipeDetail() {
   const { id } = useLocalSearchParams();
-  const [recipe, setRecipe] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [receta, setReceta] = useState<any>(null);
 
   useEffect(() => {
-    if (id) {
-      fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
-        .then(res => res.json())
-        .then(data => {
-          setRecipe(data.meals ? data.meals[0] : null);
-          setLoading(false);
-        });
-    }
+    fetch(`http://192.168.1.142:5000/api/recipes/${id}`)
+      .then(res => res.json())
+      .then(data => setReceta(data))
+      .catch(err => console.error(err));
   }, [id]);
 
-  if (loading) return <ActivityIndicator style={{marginTop: 40}} size="large" color="#22c55e" />;
-  if (!recipe) return <Text style={{margin: 20}}>No se encontró la receta.</Text>;
+  if (!receta) {
+    return <Text style={{ margin: 20 }}>Cargando receta...</Text>;
+  }
 
   return (
-    <ScrollView style={styles.container}>
-      <Image source={{ uri: recipe.strMealThumb }} style={styles.image} />
-      <Text style={styles.title}>{recipe.strMeal}</Text>
-      <Text style={styles.category}>{recipe.strCategory} - {recipe.strArea}</Text>
-      <Text style={styles.sectionTitle}>Ingredientes:</Text>
-      <View style={styles.ingredientList}>
-        {Array.from({length: 20}).map((_, i) => {
-          const ingredient = recipe[`strIngredient${i+1}`];
-          const measure = recipe[`strMeasure${i+1}`];
-          if (ingredient && ingredient.trim()) {
-            return (
-              <View key={i} style={styles.ingredientRow}>
-                <Text style={styles.ingredientBullet}>✔</Text>
-                <Text style={styles.ingredientText}>{ingredient} <Text style={styles.ingredientMeasure}>{measure}</Text></Text>
-              </View>
-            );
-          }
-          return null;
-        })}
-      </View>
-      <Text style={styles.sectionTitle}>Instrucciones:</Text>
-      <View style={styles.instructionsList}>
-        {(recipe.strInstructions.split(/\r?\n|\./).filter((p: string) => p.trim().length > 0) as string[]).map((step: string, idx: number) => (
-          <View key={idx} style={styles.instructionRow}>
-            <View style={styles.instructionNumber}><Text style={styles.instructionNumberText}>{idx+1}</Text></View>
-            <Text style={styles.instructionText}>{step.trim()}</Text>
-          </View>
-        ))}
+    <ScrollView contentContainerStyle={styles.screen}>
+      <View style={styles.card}>
+        <Image
+          source={{ uri: receta.image || 'https://via.placeholder.com/300x200.png?text=Receta' }}
+          style={styles.image}
+        />
+
+        <Text style={styles.title}>{receta.title}</Text>
+        <Text style={styles.subtitle}>
+          {receta.category} <Text style={styles.dot}>•</Text> {receta.dificultad}
+        </Text>
+
+        <Text style={styles.section}>Ingredientes</Text>
+        <View style={styles.listContainer}>
+          {receta.ingredientes.map((item: string, index: number) => (
+            <Text key={index} style={styles.listItem}>• {item}</Text>
+          ))}
+        </View>
+
+        <Text style={styles.section}>Instrucciones</Text>
+        <Text style={styles.text}>{receta.instructions}</Text>
+
+        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backText}>← Regresar</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: '#fff', flex: 1 },
-  image: { width: '100%', height: 220, borderBottomLeftRadius: 16, borderBottomRightRadius: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', margin: 16, color: '#2e7d32' },
-  category: { fontSize: 15, color: '#666', marginHorizontal: 16, marginBottom: 10 },
-  sectionTitle: { fontWeight: 'bold', fontSize: 17, marginHorizontal: 16, marginTop: 18, marginBottom: 6, color: '#2e7d32' },
-  ingredientList: { marginHorizontal: 10, marginBottom: 10 },
-  ingredientRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  ingredientBullet: { color: '#22c55e', fontSize: 18, marginRight: 8 },
-  ingredientText: { fontSize: 15, color: '#222' },
-  ingredientMeasure: { color: '#888', fontSize: 14 },
-  instructionsList: { marginHorizontal: 10, marginBottom: 30 },
-  instructionRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  instructionNumber: { width: 28, height: 28, borderRadius: 14, backgroundColor: '#e8f5e9', alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  instructionNumberText: { color: '#22c55e', fontWeight: 'bold', fontSize: 15 },
-  instructionText: { flex: 1, fontSize: 15, color: '#444' },
+  screen: {
+    padding: 16,
+    backgroundColor: '#f4f4f4',
+    alignItems: 'center'
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 6,
+    width: '100%',
+    maxWidth: 400,
+  },
+  image: {
+    width: '100%',
+    height: 220,
+    borderRadius: 14,
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111',
+    marginBottom: 4,
+    textAlign: 'center'
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 16,
+    textAlign: 'center'
+  },
+  dot: {
+    color: '#ccc',
+  },
+  section: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2e7d32',
+    marginTop: 20,
+    marginBottom: 6,
+  },
+  text: {
+    fontSize: 15,
+    color: '#444',
+    lineHeight: 22,
+    textAlign: 'center'
+  },
+  listContainer: {
+    marginBottom: 10,
+  },
+  listItem: {
+    fontSize: 15,
+    color: '#444',
+    marginBottom: 4,
+  },
+  backButton: {
+    marginTop: 30,
+    backgroundColor: '#2e7d32',
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  backText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });

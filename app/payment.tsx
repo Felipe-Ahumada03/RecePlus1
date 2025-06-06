@@ -1,48 +1,38 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { router } from 'expo-router';
+import { View, StyleSheet, Platform, StatusBar } from 'react-native';
+import { WebView, WebViewNavigation } from 'react-native-webview';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Payment() {
+export default function PaymentScreen() {
+  const handleNavigationChange = async (event: WebViewNavigation) => {
+    if (event.url.includes('/success')) {
+      const userId = await AsyncStorage.getItem('userId');
+
+      if (userId) {
+        await fetch('http://192.168.1.142:5000/api/paypal/set-membership', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId }),
+        });
+      }
+
+      alert('¡Gracias por tu compra! Tu membresía premium está activa.');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/')} style={{flexDirection:'row',alignItems:'center'}}>
-          <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
-          <Text style={styles.logoTitle}>RecePlus</Text>
-        </TouchableOpacity>
-      </View>
-      <Text style={styles.title}>Pago de Membresía</Text>
-      <Text style={styles.subtitle}>Completa tu pago para activar tu membresía premium.</Text>
-      <View style={styles.paymentBox}>
-        <Text style={styles.paymentLabel}>Método de pago</Text>
-        <TouchableOpacity style={styles.paymentMethod}>
-          <Text style={styles.paymentMethodText}>Tarjeta de crédito/débito</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.paymentMethod}>
-          <Text style={styles.paymentMethodText}>PayPal</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.paymentMethod}>
-          <Text style={styles.paymentMethodText}>Stripe</Text>
-        </TouchableOpacity>
-      </View>
-      <TouchableOpacity style={styles.payButton} onPress={() => router.push('/') }>
-        <Text style={styles.payButtonText}>Pagar y activar membresía</Text>
-      </TouchableOpacity>
+      <WebView
+        source={{ uri: 'http://192.168.1.142:5000/api/paypal/pay' }} // Reemplaza esto por la página que contiene el botón de PayPal
+        onNavigationStateChange={handleNavigationChange}
+        style={{ flex: 1 }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 24 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
-  logo: { width: 32, height: 32, borderRadius: 8 },
-  logoTitle: { fontSize: 22, fontWeight: 'bold', color: '#2e7d32', marginLeft: 8 },
-  title: { fontSize: 26, fontWeight: 'bold', color: '#2e7d32', marginBottom: 10 },
-  subtitle: { fontSize: 15, color: '#666', marginBottom: 30 },
-  paymentBox: { backgroundColor: '#e8f5e9', borderRadius: 10, padding: 20, marginBottom: 30 },
-  paymentLabel: { fontWeight: 'bold', fontSize: 16, marginBottom: 12, color: '#2e7d32' },
-  paymentMethod: { backgroundColor: '#fff', borderRadius: 8, padding: 14, marginBottom: 10, borderWidth: 1, borderColor: '#22c55e' },
-  paymentMethodText: { color: '#2e7d32', fontSize: 15 },
-  payButton: { backgroundColor: '#22c55e', borderRadius: 8, padding: 16, alignItems: 'center' },
-  payButtonText: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
 });

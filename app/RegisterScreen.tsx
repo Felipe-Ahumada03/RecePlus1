@@ -10,9 +10,38 @@ export default function RegisterScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
 
-  const handleRegister = () => {
-    // Lógica de registro
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirm) {
+      alert('Por favor completa todos los campos');
+      return;
+    }
+  
+    if (password !== confirm) {
+      alert('Las contraseñas no coinciden');
+      return;
+    }
+  
+    try {
+      const res = await fetch('http://192.168.1.142:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+  
+      const data = await res.json();
+  
+      if (res.ok) {
+        alert('Registro exitoso');
+        router.replace('/LoginScreen');
+      } else {
+        alert(data.message || 'Error al registrar');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error al conectar con el servidor');
+    }
   };
+
 
   return (
     <View style={styles.container}>

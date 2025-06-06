@@ -1,19 +1,45 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function LoginScreen({ navigation }: any) {
+export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    // Lógica de autenticación
+  const handleLogin = async () => {
+    try {
+      const res = await fetch('http://192.168.1.142:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.user) {
+        await AsyncStorage.removeItem('userToken');
+        await AsyncStorage.removeItem('userId');
+        await AsyncStorage.removeItem('membership');
+      
+        await AsyncStorage.setItem('userToken', data.token || 'sesion');
+        await AsyncStorage.setItem('userId', data.user.id || '');
+        await AsyncStorage.setItem('membership', data.user.membership || 'free');
+      
+        alert('Bienvenido');
+        router.replace('/');
+      } else {
+        console.log('Error en respuesta de login:', data);
+        alert(data.message || 'Credenciales inválidas');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      alert('Error de conexión');
+    }
   };
 
   return (
     <View style={styles.container}>
-      {/* Header simplificado */}
       <View style={styles.header}>
         <View style={styles.headerRow}>
           <TouchableOpacity 
@@ -90,22 +116,16 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  headerRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center',
-  },
-  logoLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
+  headerRow: { flexDirection: 'row', alignItems: 'center' },
+  logoLink: { flexDirection: 'row', alignItems: 'center' },
   logo: { width: 28, height: 28, marginRight: 8 },
   brand: { fontWeight: 'bold', fontSize: 20, color: '#22c55e' },
-  main: { 
+  main: {
     flex: 1,
-    alignItems: 'center',     // Centra horizontalmente
-    justifyContent: 'center', // Centra verticalmente
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 24,
-    paddingTop: 20,          // Reducido para mejor centrado
+    paddingTop: 20,
   },
   icon: { width: 48, height: 48, marginBottom: 18, marginTop: 10 },
   title: { fontSize: 22, fontWeight: 'bold', color: '#222', marginBottom: 6, textAlign: 'center' },
@@ -122,15 +142,10 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     borderWidth: 1,
     borderColor: '#eee',
-    alignSelf: 'center',     // Asegura que el formulario esté centrado
-    marginVertical: 20,      // Añade espacio vertical
+    alignSelf: 'center',
+    marginVertical: 20,
   },
-  label: { 
-    fontWeight: 'bold', 
-    color: '#222', 
-    marginBottom: 4, 
-    fontSize: 14 
-  },
+  label: { fontWeight: 'bold', color: '#222', marginBottom: 4, fontSize: 14 },
   input: {
     borderWidth: 1,
     borderColor: '#e0e0e0',
@@ -160,11 +175,6 @@ const styles = StyleSheet.create({
   bottomRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
   bottomText: { color: '#444', fontSize: 14 },
   registerText: { color: '#22c55e', fontWeight: 'bold', fontSize: 14 },
-  scrollView: {
-    flex: 1,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center', // Centra verticalmente
-  },
+  scrollView: { flex: 1 },
+  scrollViewContent: { flexGrow: 1, justifyContent: 'center' },
 });

@@ -4,10 +4,60 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
 
 export default function Contact() {
-  const [checked, setChecked] = React.useState(''); // Cambiado de 'no' a ''
   const pathname = usePathname();
+
+  // Estados para el formulario
+  const [nombre, setNombre] = React.useState('');
+  const [apellido, setApellido] = React.useState('');
+  const [correo, setCorreo] = React.useState('');
+  const [asunto, setAsunto] = React.useState('');
+  const [mensaje, setMensaje] = React.useState('');
+  const [checked, setChecked] = React.useState('');
+  const [enviando, setEnviando] = React.useState(false);
+
+
+  const enviarFormulario = async () => {
+    setEnviando(true); // ← se activa justo al iniciar
+    try {
+      const res = await fetch('http://192.168.1.142:5000/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre,
+          apellido,
+          correo,
+          asunto,
+          mensaje,
+          esUsuario: checked === 'si',
+        }),
+      });
   
+      const data = await res.json();
+  
+      if (res.ok) {
+        Alert.alert('✅ Mensaje enviado', 'Tu mensaje ha sido enviado correctamente.');
+        
+        // Limpiar todos los campos
+        setNombre('');
+        setApellido('');
+        setCorreo('');
+        setAsunto('');
+        setMensaje('');
+        setChecked('');
+      } else {
+        Alert.alert('❌ Error', data.message || 'No se pudo enviar el mensaje.');
+      }
+    } catch (error) {
+      console.error('Error al enviar:', error);
+      Alert.alert('❌ Error', 'Ocurrió un error al enviar el mensaje.');
+    } finally {
+      setEnviando(false); // ← se desactiva siempre al final
+    }
+  };
+  
+
   return (
+
     <View style={styles.container}>
       {/* Header */}
       <View style={[styles.header, {justifyContent: 'flex-start'}]}>
@@ -67,40 +117,47 @@ export default function Contact() {
         <View style={styles.inputGroup}>
           <View style={styles.inputRow}>
             <View style={styles.inputHalf}>
-              <TextInput 
+              <TextInput
                 style={styles.input}
                 placeholder="Tu nombre"
                 placeholderTextColor="#666"
+                value={nombre}
+                onChangeText={setNombre}
               />
             </View>
             <View style={styles.inputHalf}>
-              <TextInput 
-                style={styles.input}
-                placeholder="Tu apellido"
-                placeholderTextColor="#666"
-              />
+            <TextInput
+              style={styles.input}
+              placeholder="Tu apellido"
+              placeholderTextColor="#666"
+              value={apellido}
+              onChangeText={setApellido}
+            />
             </View>
           </View>
-
-          <TextInput 
+          <TextInput
             style={styles.input}
             placeholder="tu@ejemplo.com"
             placeholderTextColor="#666"
             keyboardType="email-address"
+            value={correo}
+            onChangeText={setCorreo}
           />
-
-          <TextInput 
+          <TextInput
             style={styles.input}
             placeholder="Selecciona un asunto"
             placeholderTextColor="#666"
+            value={asunto}
+            onChangeText={setAsunto}
           />
-
-          <TextInput 
+          <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Escribe tu mensaje aquí..."
             placeholderTextColor="#666"
             multiline
             numberOfLines={4}
+            value={mensaje}
+            onChangeText={setMensaje}
           />
 
           <Text style={styles.radioLabel}>¿Eres usuario de RecePlus?</Text>
@@ -131,10 +188,14 @@ export default function Contact() {
               <Text style={checked === 'no' ? styles.radioTextSelected : styles.radioText}>No</Text>
             </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.submitButton} onPress={() => Alert.alert('Mensaje enviado', 'Tu mensaje ha sido enviado correctamente.') }>
+          <TouchableOpacity
+            style={[styles.submitButton, enviando && { opacity: 0.5 }]}
+            onPress={enviarFormulario}
+            disabled={enviando}
+          >
             <Text style={styles.submitButtonText}>Enviar mensaje</Text>
           </TouchableOpacity>
+
         </View>
       </ScrollView>
 
@@ -393,5 +454,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     fontStyle: 'italic',
-  },
+  }
 });

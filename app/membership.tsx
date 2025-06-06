@@ -1,10 +1,52 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar} from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar, Linking, Alert} from 'react-native';
 import { router, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+
+
 
 export default function Membership() {
   const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  
+  
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = await AsyncStorage.getItem('userToken');
+      const membership = await AsyncStorage.getItem('membership');
+      setIsLoggedIn(!!token);
+      setIsPremium(membership === 'premium'); // 👈 crea este estado
+    };
+    checkSession();
+  }, [pathname]);
+
+  const handleSubscribe = async () => {
+    try {
+      const response = await fetch('http://192.168.1.142:5000/api/paypal/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
+      const data = await response.json();
+  
+      if (data.id) {
+        const checkoutUrl = `https://www.sandbox.paypal.com/checkoutnow?token=${data.id}`;
+  
+        // Redirige al navegador o a una WebView en tu app
+        Linking.openURL(checkoutUrl);
+      } else {
+        Alert.alert('Error', 'No se pudo crear la orden de pago.');
+      }
+    } catch (err) {
+      console.error('Error al suscribirse:', err);
+      Alert.alert('Error', 'No se pudo iniciar el proceso de suscripción.');
+    }
+  };
+  
+  
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -53,7 +95,7 @@ export default function Membership() {
           </View>
           <Text style={styles.planTitle}>Plan Premium</Text>
           <Text style={styles.planSubtitle}>Para entusiastas de la cocina</Text>
-          <Text style={styles.price}>$59.99<Text style={styles.period}>/mes</Text></Text>
+          <Text style={styles.price}>$49.99<Text style={styles.period}>/mes</Text></Text>
           <View style={styles.features}>
             <View style={styles.featureItem}>
               <Ionicons name="checkmark-outline" size={20} color="#4CAF50" />
@@ -72,37 +114,13 @@ export default function Membership() {
               <Text style={styles.featureText}>Lista de compras inteligente</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.subscribeButton} onPress={() => router.push('/payment')}>
-            <Text style={styles.subscribeButtonText}>Suscribirse</Text>
-          </TouchableOpacity>
-        </View>
+          
 
-        {/* Plan Profesional */}
-        <View style={styles.planCard}>
-          <Text style={styles.planTitle}>Plan Profesional</Text>
-          <Text style={styles.planSubtitle}>Para chefs y profesionales</Text>
-          <Text style={styles.price}>$99.99<Text style={styles.period}>/mes</Text></Text>
-          <View style={styles.features}>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-outline" size={20} color="#4CAF50" />
-              <Text style={styles.featureText}>Todo lo del plan premium</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-outline" size={20} color="#4CAF50" />
-              <Text style={styles.featureText}>Acceso a clases de cocina en vivo</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-outline" size={20} color="#4CAF50" />
-              <Text style={styles.featureText}>Soporte prioritario</Text>
-            </View>
-            <View style={styles.featureItem}>
-              <Ionicons name="checkmark-outline" size={20} color="#4CAF50" />
-              <Text style={styles.featureText}>Calculadora de nutrición avanzada</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.subscribeButton} onPress={() => router.push('/payment')}>
-            <Text style={styles.subscribeButtonText}>Suscribirse</Text>
-          </TouchableOpacity>
+          {isPremium && (
+            <Text style={{ textAlign: 'center', color: '#2e7d32', marginTop: 10 }}>
+              Ya tienes una membresía activa.
+            </Text>
+          )}
         </View>
 
         {/* Preguntas Frecuentes */}
@@ -123,13 +141,17 @@ export default function Membership() {
         </View>
 
         {/* Sección de bienvenida */}
-        <View style={[styles.welcomeSection, { marginTop: 30, marginHorizontal: 20 }]}>
-          <Text style={styles.welcomeTitle}>¿Listo para mejorar tu experiencia culinaria?</Text>
-          <Text style={styles.welcomeText}>Únete a miles de entusiastas de la cocina que ya disfrutan de nuestras recetas premium y funciones exclusivas.</Text>
-          <TouchableOpacity style={styles.startButton} onPress={() => router.push('/RegisterScreen')}>
-            <Text style={styles.startButtonText}>Comenzar ahora</Text>
-          </TouchableOpacity>
-        </View>
+        {!isLoggedIn && (
+          <View style={[styles.welcomeSection, { marginTop: 30, marginHorizontal: 20 }]}>
+            <Text style={styles.welcomeTitle}>¿Listo para mejorar tu experiencia culinaria?</Text>
+            <Text style={styles.welcomeText}>
+              Únete a miles de entusiastas de la cocina que ya disfrutan de nuestras recetas premium y funciones exclusivas.
+            </Text>
+            <TouchableOpacity style={styles.startButton} onPress={() => router.push('/RegisterScreen')}>
+              <Text style={styles.startButtonText}>Comenzar ahora</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Footer */}
         <View style={styles.footer}>
@@ -339,17 +361,6 @@ const styles = StyleSheet.create({
   disabledFeature: {
     color: '#666',
   },
-  subscribeButton: {
-    backgroundColor: '#4CAF50',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  subscribeButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
   faqSection: {
     marginTop: 20,
     marginHorizontal: 20,
@@ -518,5 +529,25 @@ const styles = StyleSheet.create({
   activeNavText: {
     color: '#22c55e',
     fontWeight: 'bold',
-  }
+  },  
+  subscribeButton: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  
+  subscribeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
 });

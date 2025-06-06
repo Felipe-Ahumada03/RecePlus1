@@ -1,30 +1,59 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar} from 'react-native';
-import { Link, router, usePathname } from 'expo-router';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Platform, StatusBar } from 'react-native';
+import { Link, router, usePathname} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState, useEffect } from 'react'
+
 
 export default function Home() {
   const pathname = usePathname();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = await AsyncStorage.getItem('userToken');
+      setIsLoggedIn(!!token);
+    };
+    checkSession();
+  }, [pathname]);
+  
+
+  const logout = async () => {
+    await AsyncStorage.removeItem('userToken');
+    setIsLoggedIn(false);
+  };
   
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.logoContainer}>
-          <TouchableOpacity onPress={() => router.push('/')} style={{flexDirection:'row',alignItems:'center'}} activeOpacity={0.8}>
+          <TouchableOpacity onPress={() => router.push('/')} style={{ flexDirection: 'row', alignItems: 'center' }} activeOpacity={0.8}>
             <Image source={{ uri: 'https://img.icons8.com/ios-filled/50/4CAF50/chef-hat.png' }} style={styles.logo} />
             <Text style={styles.title}>RecePlus</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.authButtons}>
-          <Link href="/LoginScreen" style={styles.authButton}>
-            <Text style={styles.authButtonText}>Iniciar Sesión</Text>
-          </Link>
-          <Link href="/RegisterScreen" style={[styles.authButton, styles.registerButton]}>
-            <Text style={[styles.authButtonText, styles.registerButtonText]}>Registrarse</Text>
-          </Link>
-        </View>
+      <View style={styles.authButtons}>
+        {isLoggedIn ? (
+          <TouchableOpacity onPress={async () => {
+            await AsyncStorage.removeItem('userToken');
+            setIsLoggedIn(false);
+            alert('Sesión cerrada');
+          }}>
+            <Ionicons name="log-out-outline" size={26} color="#2e7d32" />
+          </TouchableOpacity>
+        ) : (
+          <>
+            <Link href="/LoginScreen" style={styles.authButton}>
+              <Text style={styles.authButtonText}>Iniciar Sesión</Text>
+            </Link>
+            <Link href="/RegisterScreen" style={[styles.authButton, styles.registerButton]}>
+              <Text style={[styles.authButtonText, styles.registerButtonText]}>Registrarse</Text>
+            </Link>
+          </>
+        )}
       </View>
-
+      </View>
       {/* Contenido Principal */}
       <ScrollView>
         <View style={styles.heroSection}>
@@ -37,9 +66,11 @@ export default function Home() {
               RecePlus te ayuda a encontrar recetas perfectas basadas en tus preferencias culinarias y los ingredientes que tienes disponibles.
             </Text>
             <View style={styles.heroButtons}>
-              <TouchableOpacity style={styles.primaryButton} onPress={() => router.push('/preferences')}>
-                <Text style={styles.buttonText}>Comenzar ahora</Text>
+            {!isLoggedIn && (
+              <TouchableOpacity style={styles.mainButton} onPress={() => router.push('/register')}>
+                <Text style={styles.mainButtonText}>Comenzar ahora</Text>
               </TouchableOpacity>
+            )}
               <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push('/recipes')}>
                 <Text style={styles.buttonText}>Explorar recetas</Text>
               </TouchableOpacity>
@@ -150,16 +181,17 @@ export default function Home() {
           </View>
         </View>
 
-        {/* CTA */}
-        <View style={styles.ctaSectionCustom}>
-          <Text style={styles.ctaTitleCustom}>¿Listo para descubrir nuevas recetas?</Text>
-          <Text style={styles.ctaDescriptionCustom}>
-            Regístrate hoy y comienza a explorar recetas personalizadas para ti.
-          </Text>
-          <TouchableOpacity style={styles.ctaButtonCustom} onPress={() => router.push('/RegisterScreen')}>
-            <Text style={styles.ctaButtonTextCustom}>Crear cuenta gratis</Text>
-          </TouchableOpacity>
-        </View>
+        {!isLoggedIn && (
+          <View style={styles.promoBox}>
+            <Text style={styles.promoTitle}>¿Listo para descubrir nuevas recetas?</Text>
+            <Text style={styles.promoText}>
+              Regístrate hoy y comienza a explorar recetas personalizadas para ti.
+            </Text>
+            <TouchableOpacity style={styles.promoButton} onPress={() => router.push('/register')}>
+              <Text style={styles.promoButtonText}>Crear cuenta gratis</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Footer */}
         <View style={styles.footer}>
@@ -222,13 +254,6 @@ export default function Home() {
         >
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.navItem, pathname === '/dashboard' && styles.activeNavItem]} 
-          onPress={() => router.push('/dashboard')}
-        >
-          <Ionicons name="bar-chart-outline" size={24} color={pathname === '/dashboard' ? '#22c55e' : '#2e7d32'} />
-          <Text style={[styles.navText, pathname === '/dashboard' && styles.activeNavText]}>Dashboard</Text>
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 
@@ -651,5 +676,55 @@ const styles = StyleSheet.create({
   activeNavText: {
     color: '#22c55e',
     fontWeight: 'bold',
-  }
+  },
+  promoBox: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    padding: 20,
+    marginHorizontal: 20,
+    marginTop: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    elevation: 4,
+  },
+  promoTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  promoText: {
+    color: '#fff',
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  promoButton: {
+    backgroundColor: '#fff',
+    borderRadius: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  promoButtonText: {
+    color: '#4CAF50',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  mainButton: {
+    backgroundColor: '#2e7d32',
+    paddingVertical: 14,
+    paddingHorizontal: 28,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  
+  mainButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },  
 });

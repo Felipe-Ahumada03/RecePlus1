@@ -25,7 +25,7 @@ export default function Membership() {
 
   const handleSubscribe = async () => {
     try {
-      const response = await fetch('http://192.168.1.142:5000/api/paypal/create-order', {
+      const response = await fetch('https://receplus-backend.onrender.com/api/paypal/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });

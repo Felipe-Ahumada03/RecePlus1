@@ -71,7 +71,7 @@ export default function Recipes() {
             style={styles.searchIconButton}
             onPress={async () => {
               try {
-                const res = await fetch(`http://192.168.1.142:5000/api/recipes/search?ingredient=${ingredientSearch}`);
+                const res = await fetch(`https://receplus-backend.onrender.com/api/recipes/search?ingredient=${ingredientSearch}`);
                 const data = await res.json();
                 setIngredientResults(data);
               } catch (err) {

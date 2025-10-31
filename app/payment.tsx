@@ -8,7 +8,7 @@ export default function PaymentScreen() {
       const userId = await AsyncStorage.getItem('userId');
 
       if (userId) {
-        await fetch('http://192.168.1.142:5000/api/paypal/set-membership', {
+        await fetch('https://receplus-backend.onrender.com/api/paypal/set-membership', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId }),
@@ -22,7 +22,7 @@ export default function PaymentScreen() {
   return (
     <View style={styles.container}>
       <WebView
-        source={{ uri: 'http://192.168.1.142:5000/api/paypal/pay' }} // Reemplaza esto por la página que contiene el botón de PayPal
+        source={{ uri: 'https://receplus-backend.onrender.com/api/paypal/pay' }} // Reemplaza esto por la página que contiene el botón de PayPal
         onNavigationStateChange={handleNavigationChange}
         style={{ flex: 1 }}
       />

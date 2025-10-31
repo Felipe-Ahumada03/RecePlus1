@@ -19,7 +19,7 @@ export default function Contact() {
   const enviarFormulario = async () => {
     setEnviando(true); // ← se activa justo al iniciar
     try {
-      const res = await fetch('http://192.168.1.142:5000/api/contact', {
+      const res = await fetch('https://receplus-backend.onrender.com/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

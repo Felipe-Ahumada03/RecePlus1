@@ -37,7 +37,7 @@ export default function PreferencesScreen() {
   const handleSave = async () => {
     try {
       const userId = await AsyncStorage.getItem('userId');
-      const res = await fetch('http://192.168.1.142:5000/api/preferences/save', {
+      const res = await fetch('https://receplus-backend.onrender.com/api/preferences/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, favorites, notPreferred, restrictions, allergies, otherNotes })

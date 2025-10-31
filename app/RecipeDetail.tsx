@@ -15,7 +15,7 @@ export default function RecipeDetail() {
   const [receta, setReceta] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`http://192.168.1.142:5000/api/recipes/${id}`)
+    fetch(`https://receplus-backend.onrender.com/api/recipes/${id}`)
       .then(res => res.json())
       .then(data => setReceta(data))
       .catch(err => console.error(err));

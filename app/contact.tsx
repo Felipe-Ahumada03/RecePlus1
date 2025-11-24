@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Platform, Image, StatusBar, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Contact() {
   const pathname = usePathname();
+  const [isPremium, setIsPremium] = useState(false);
 
   // Estados para el formulario
   const [nombre, setNombre] = React.useState('');
@@ -14,6 +16,14 @@ export default function Contact() {
   const [mensaje, setMensaje] = React.useState('');
   const [checked, setChecked] = React.useState('');
   const [enviando, setEnviando] = React.useState(false);
+  
+  useEffect(() => {
+    const loadMembership = async () => {
+      const status = await AsyncStorage.getItem('isPremium');
+      setIsPremium(status === 'true');
+    };
+    loadMembership();
+  }, []);
 
 
   const enviarFormulario = async () => {
@@ -215,6 +225,7 @@ export default function Contact() {
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
         </TouchableOpacity>
+        {isPremium && (
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 
           onPress={() => router.push('/preferences')}
@@ -222,6 +233,8 @@ export default function Contact() {
           <Ionicons name="settings-outline" size={24} color={pathname === '/preferences' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/preferences' && styles.activeNavText]}>Preferencias</Text>
         </TouchableOpacity>
+      )}
+      {!isPremium && (
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/membership' && styles.activeNavItem]} 
           onPress={() => router.push('/membership')}
@@ -229,6 +242,7 @@ export default function Contact() {
           <Ionicons name="person-outline" size={24} color={pathname === '/membership' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/membership' && styles.activeNavText]}>Membresía</Text>
         </TouchableOpacity>
+        )}
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/contact' && styles.activeNavItem]} 
           onPress={() => router.push('/contact')}
@@ -358,13 +372,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#fff',
+    paddingVertical: 8, // Reducido de 12
     borderTopWidth: 1,
+    padding: 4,
     borderTopColor: '#eee',
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    paddingTop: 8,
     paddingBottom: Platform.OS === 'ios' ? 40 : 8, // Ajustado para iOS
   },
   navItem: {
@@ -372,9 +387,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#2e7d32',
-    marginTop: 4,
   },
   activeNavItem: {
     backgroundColor: '#e8f5e9',

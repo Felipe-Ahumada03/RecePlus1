@@ -8,6 +8,15 @@ import React, { useState, useEffect } from 'react'
 export default function Home() {
   const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+    const loadMembership = async () => {
+      const status = await AsyncStorage.getItem('isPremium');
+      setIsPremium(status === 'true');
+    };
+    loadMembership();
+  }, []);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -67,7 +76,7 @@ export default function Home() {
             </Text>
             <View style={styles.heroButtons}>
             {!isLoggedIn && (
-              <TouchableOpacity style={styles.mainButton} onPress={() => router.push('/register')}>
+              <TouchableOpacity style={styles.mainButton} onPress={() => router.push('/LoginScreen')}>
                 <Text style={styles.mainButtonText}>Comenzar ahora</Text>
               </TouchableOpacity>
             )}
@@ -255,6 +264,7 @@ export default function Home() {
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
         </TouchableOpacity>
+        {isPremium && (
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 
           onPress={() => router.push('/preferences')}
@@ -262,6 +272,8 @@ export default function Home() {
           <Ionicons name="settings-outline" size={24} color={pathname === '/preferences' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/preferences' && styles.activeNavText]}>Preferencias</Text>
         </TouchableOpacity>
+        )}
+        {!isPremium && (
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/membership' && styles.activeNavItem]} 
           onPress={() => router.push('/membership')}
@@ -269,6 +281,7 @@ export default function Home() {
           <Ionicons name="person-outline" size={24} color={pathname === '/membership' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/membership' && styles.activeNavText]}>Membresía</Text>
         </TouchableOpacity>
+        )}
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/contact' && styles.activeNavItem]} 
           onPress={() => router.push('/contact')}
@@ -299,7 +312,6 @@ const styles = StyleSheet.create({
     paddingLeft: 20, // Añadido para mover el logo más a la izquierda
   },
   logoContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     height: 40,
   },
@@ -312,20 +324,18 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
     color: '#2e7d32',
-    marginLeft: 8,
+    marginLeft: 5,
   },
   authButtons: {
     flexDirection: 'row',
     gap: 10,
     alignItems: 'center',
     height: 40,
-    marginTop: 14,
   },
   authButton: {
-    paddingVertical: 6, // Reducido de 8
-    paddingHorizontal: 10, // Reducido de 12
+    paddingVertical: 7, // Reducido de 8
+    paddingHorizontal: 7, // Reducido de 12
     borderRadius: 6,
-    marginTop: 5,
     backgroundColor: '#2e7d32',
     justifyContent: 'center',
   },
@@ -344,7 +354,7 @@ const styles = StyleSheet.create({
   },
   heroSection: {
     paddingHorizontal: 20,
-    paddingVertical: 100,
+    paddingVertical: 90,
     backgroundColor: '#e8f5e9',
     alignItems: 'center',
   },
@@ -387,8 +397,11 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     backgroundColor: '#a5d6a7',
-    padding: 10,
-    borderRadius: 5,
+    paddingVertical: 14,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginTop: 20,
   },
   buttonText: {
     color: '#fff',
@@ -664,9 +677,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   navText: {
-    fontSize: 12,
+    fontSize: 13,
     color: '#2e7d32',
-    marginTop: 4,
   },
   activeNavItem: {
     backgroundColor: '#e8f5e9',
@@ -716,7 +728,7 @@ const styles = StyleSheet.create({
   mainButton: {
     backgroundColor: '#2e7d32',
     paddingVertical: 14,
-    paddingHorizontal: 28,
+    paddingHorizontal: 10,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 20,

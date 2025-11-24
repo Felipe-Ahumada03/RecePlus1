@@ -23,6 +23,14 @@ export default function Membership() {
     checkSession();
   }, [pathname]);
 
+  useEffect(() => {
+    const loadMembership = async () => {
+      const status = await AsyncStorage.getItem('isPremium');
+      setIsPremium(status === 'true');
+    };
+    loadMembership();
+  }, []);
+
   const handleSubscribe = async () => {
     try {
       const response = await fetch('https://receplus-backend.onrender.com/api/paypal/create-order', {
@@ -113,6 +121,25 @@ export default function Membership() {
               <Ionicons name="checkmark-outline" size={20} color="#4CAF50" />
               <Text style={styles.featureText}>Lista de compras inteligente</Text>
             </View>
+            <TouchableOpacity
+              style={styles.subscribeButton}
+              onPress={async () => {
+                const token = await AsyncStorage.getItem('userToken');
+
+                if (!token) {
+                  Alert.alert(
+                    "Inicia sesión",
+                    "Debes iniciar sesión para suscribirte.",
+                    [{ text: "Aceptar" }]
+                  );
+                  return;
+                }
+
+                router.push('/payment');
+              }}
+            >
+              <Text style={styles.subscribeButtonText}>Suscribirse</Text>
+            </TouchableOpacity>
           </View>
           
 
@@ -215,6 +242,7 @@ export default function Membership() {
           <Ionicons name="book-outline" size={24} color={pathname === '/recipes' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/recipes' && styles.activeNavText]}>Recetas</Text>
         </TouchableOpacity>
+        {isPremium && (
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/preferences' && styles.activeNavItem]} 
           onPress={() => router.push('/preferences')}
@@ -222,6 +250,8 @@ export default function Membership() {
           <Ionicons name="settings-outline" size={24} color={pathname === '/preferences' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/preferences' && styles.activeNavText]}>Preferencias</Text>
         </TouchableOpacity>
+        )}
+        {!isPremium && (
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/membership' && styles.activeNavItem]} 
           onPress={() => router.push('/membership')}
@@ -229,6 +259,7 @@ export default function Membership() {
           <Ionicons name="person-outline" size={24} color={pathname === '/membership' ? '#22c55e' : '#2e7d32'} />
           <Text style={[styles.navText, pathname === '/membership' && styles.activeNavText]}>Membresía</Text>
         </TouchableOpacity>
+        )}
         <TouchableOpacity 
           style={[styles.navItem, pathname === '/contact' && styles.activeNavItem]} 
           onPress={() => router.push('/contact')}
@@ -379,29 +410,6 @@ const styles = StyleSheet.create({
     color: '#666',
     lineHeight: 24,
   },
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingTop: 8,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 8,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navText: {
-    fontSize: 12,
-    color: '#2e7d32',
-    marginTop: 4,
-  },
   welcomeSection: {
     alignItems: 'center',
     marginBottom: 30,
@@ -521,6 +529,29 @@ const styles = StyleSheet.create({
     fontSize: 13,
     textAlign: 'center',
   },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 8, // Reducido de 12
+    borderTopWidth: 1,
+    padding: 4,
+    borderTopColor: '#eee',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 8, // Ajustado para iOS
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navText: {
+    fontSize: 13,
+    color: '#2e7d32',
+  },
   activeNavItem: {
     backgroundColor: '#e8f5e9',
     borderRadius: 8,
@@ -529,7 +560,7 @@ const styles = StyleSheet.create({
   activeNavText: {
     color: '#22c55e',
     fontWeight: 'bold',
-  },  
+  },
   subscribeButton: {
     backgroundColor: '#4CAF50',
     paddingVertical: 12,

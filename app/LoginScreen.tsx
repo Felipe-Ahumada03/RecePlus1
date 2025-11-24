@@ -9,34 +9,50 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
 
   const handleLogin = async () => {
-    try {
-      const res = await fetch('https://receplus-backend.onrender.com/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+  try {
+    const res = await fetch('https://receplus-backend-1.onrender.com/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
 
-      if (res.ok && data.user) {
-        await AsyncStorage.removeItem('userToken');
-        await AsyncStorage.removeItem('userId');
-        await AsyncStorage.removeItem('membership');
+    const data = await res.json();
+
+    if (res.ok && data.user) {
+      // Limpia datos previos
+      await AsyncStorage.multiRemove(['userToken', 'userId', 'membership', 'userRole']);
+
+      // Guarda nueva sesión
+      await AsyncStorage.multiSet([
+        ['userToken', data.token || ''],
+        ['userId', data.user.id || ''],
+        ['membership', data.user.membership || 'free'],
+        ['userRole', data.user.role || 'user'],
+      ]);
+
+      // 🔥 Importante → esto hace funcionar el bottom nav
+      await AsyncStorage.setItem(
+        'isPremium',
+        data.user.membership === 'premium' ? 'true' : 'false'
+      );
       
-        await AsyncStorage.setItem('userToken', data.token || 'sesion');
-        await AsyncStorage.setItem('userId', data.user.id || '');
-        await AsyncStorage.setItem('membership', data.user.membership || 'free');
-      
+      // Redirección según rol
+      if (data.user.role === 'admin') {
+        alert('Bienvenido, administrador');
+        router.replace('/AdminPanel'); // 👈 asegúrate que el archivo se llame así
+      } else {
         alert('Bienvenido');
         router.replace('/');
-      } else {
-        console.log('Error en respuesta de login:', data);
-        alert(data.message || 'Credenciales inválidas');
       }
-    } catch (err) {
-      console.error('Error:', err);
-      alert('Error de conexión');
+    } else {
+      console.log('Error en respuesta de login:', data);
+      alert(data.message || 'Credenciales inválidas');
     }
-  };
+  } catch (err) {
+    console.error('Error:', err);
+    alert('Error de conexión');
+  }
+};
 
   return (
     <View style={styles.container}>

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function RegisterScreen({ navigation }: any) {
@@ -32,14 +32,14 @@ export default function RegisterScreen({ navigation }: any) {
       const data = await res.json();
   
       if (res.ok) {
-        alert('Registro exitoso');
+        Alert.alert('Registro exitoso, ahora puedes iniciar sesión');
         router.replace('/LoginScreen');
       } else {
         alert(data.message || 'Error al registrar');
       }
     } catch (error) {
       console.error(error);
-      alert('Error al conectar con el servidor');
+      Alert.alert('Error al conectar con el servidor');
     }
   };
 

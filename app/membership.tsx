@@ -46,11 +46,11 @@ export default function Membership() {
         // Redirige al navegador o a una WebView en tu app
         Linking.openURL(checkoutUrl);
       } else {
-        Alert.alert('Error', 'No se pudo crear la orden de pago.');
+        Alert.alert('No se pudo crear la orden de pago.');
       }
     } catch (err) {
       console.error('Error al suscribirse:', err);
-      Alert.alert('Error', 'No se pudo iniciar el proceso de suscripción.');
+      Alert.alert('No se pudo iniciar el proceso de suscripción.');
     }
   };
   

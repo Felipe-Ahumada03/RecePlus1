@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -38,19 +38,19 @@ export default function LoginScreen() {
       
       // Redirección según rol
       if (data.user.role === 'admin') {
-        alert('Bienvenido, administrador');
+        Alert.alert('Bienvenido, administrador');
         router.replace('/AdminPanel'); // 👈 asegúrate que el archivo se llame así
       } else {
-        alert('Bienvenido');
+        Alert.alert('Bienvenido a RecePlus!');
         router.replace('/');
       }
     } else {
       console.log('Error en respuesta de login:', data);
-      alert(data.message || 'Credenciales inválidas');
+      Alert.alert(data.message || 'Credenciales inválidas');
     }
   } catch (err) {
     console.error('Error:', err);
-    alert('Error de conexión');
+    Alert.alert('Error de conexión');
   }
 };
 

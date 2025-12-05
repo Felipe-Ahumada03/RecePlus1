@@ -23,7 +23,7 @@ export default function RegisterScreen({ navigation }: any) {
     }
   
     try {
-      const res = await fetch('https://receplus-backend.onrender.com/api/auth/register', {
+      const res = await fetch('https://receplus-backend-1.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),

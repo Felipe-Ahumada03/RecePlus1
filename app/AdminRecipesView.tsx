@@ -45,16 +45,18 @@ export default function AdminRecipesView() {
         <Image source={{ uri: receta.image }} style={styles.image} />
 
         <Text style={styles.title}>{receta.title}</Text>
+
         <Text style={styles.subtitle}>
-          {receta.category} <Text style={styles.dot}>•</Text> {receta.dificultad}
+          {receta.category} <Text style={styles.dot}>•</Text>{" "}
+          {receta.dificultad}
         </Text>
 
         {/* INGREDIENTES */}
         <Text style={styles.section}>Ingredientes</Text>
         <View style={styles.listContainer}>
-          {receta.ingredientes?.map((ing: string, index: number) => (
+          {receta.ingredientes?.map((ing: any, index: number) => (
             <Text key={index} style={styles.listItem}>
-              • {ing}
+              • {ing.cantidad} de {ing.nombre}
             </Text>
           ))}
         </View>
@@ -75,75 +77,75 @@ export default function AdminRecipesView() {
 const styles = StyleSheet.create({
   screen: {
     padding: 16,
-    marginTop: 45,
-    backgroundColor: "#f4f4f4",
+    marginTop: 40,
+    backgroundColor: "#eef2f3",
     alignItems: "center",
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 16,
+    borderRadius: 20,
     padding: 20,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 7,
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 420,
   },
   image: {
     width: "100%",
-    height: 220,
-    borderRadius: 14,
+    height: 230,
+    borderRadius: 16,
     marginBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "#111",
-    marginBottom: 4,
+    color: "#1a1a1a",
     textAlign: "center",
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 16,
-    color: "#555",
-    marginBottom: 16,
+    color: "#666",
     textAlign: "center",
+    marginBottom: 20,
   },
   dot: {
-    color: "#ccc",
+    color: "#999",
   },
   section: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#2e7d32",
-    marginTop: 20,
-    marginBottom: 6,
+    color: "#19ad4fff",
+    marginTop: 15,
+    marginBottom: 10,
   },
   text: {
-    fontSize: 15,
+    fontSize: 16,
     color: "#444",
-    lineHeight: 22,
-    textAlign: "center",
+    lineHeight: 24,
+    marginBottom: 10,
   },
   listContainer: {
     marginBottom: 10,
   },
   listItem: {
-    fontSize: 15,
-    color: "#444",
-    marginBottom: 4,
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 6,
   },
   backButton: {
-    marginTop: 30,
-    backgroundColor: "#2e7d32",
+    marginTop: 25,
+    backgroundColor: "#24c25eff",
+    paddingVertical: 14,
     borderRadius: 10,
-    paddingVertical: 12,
     alignItems: "center",
   },
   backText: {
-    color: "#fff",
+    color: "white",
+    fontSize: 17,
     fontWeight: "bold",
-    fontSize: 16,
   },
 });

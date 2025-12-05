@@ -29,7 +29,7 @@ export default function Contact() {
   const enviarFormulario = async () => {
     setEnviando(true); // ← se activa justo al iniciar
     try {
-      const res = await fetch('https://receplus-backend.onrender.com/api/contact', {
+      const res = await fetch('https://receplus-backend-1.onrender.com/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -370,35 +370,15 @@ const styles = StyleSheet.create({
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 8, // Reducido de 12
+    paddingVertical: 12,
     borderTopWidth: 1,
-    padding: 4,
-    borderTopColor: '#eee',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 8, // Ajustado para iOS
+    paddingBottom: 25,
+    borderTopColor: '#ddd'
   },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navText: {
-    fontSize: 13,
-    color: '#2e7d32',
-  },
-  activeNavItem: {
-    backgroundColor: '#e8f5e9',
-    borderRadius: 8,
-    padding: 4,
-  },
-  activeNavText: {
-    color: '#22c55e',
-    fontWeight: 'bold',
-  },
+  navItem: { alignItems: 'center' },
+  navText: { fontSize: 12, color: '#2e7d32' },
+  activeNavItem: { borderBottomWidth: 2, borderBottomColor: '#22c55e' },
+  activeNavText: { color: '#22c55e', fontWeight: 'bold' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',

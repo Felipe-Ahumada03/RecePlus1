@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, ScrollView, Pressable, Alert, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function AdminEditRecipe() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
   const [title, setTitle] = useState("");
-  const [ingredientes, setIngredientes] = useState("");
+  const [ingredientes, setIngredientes] = useState(""); // ahora es string completo
   const [instructions, setInstructions] = useState("");
   const [image, setImage] = useState("");
   const [category, setCategory] = useState("");
@@ -17,11 +18,19 @@ export default function AdminEditRecipe() {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const res = await fetch(`http://receplus-backend-1.onrender.com/api/recipes/${id}`);
+        const res = await fetch(`https://receplus-backend-1.onrender.com/api/recipes/${id}`);
         const data = await res.json();
 
         setTitle(data.title);
-        setIngredientes(data.ingredientes?.join(", ") || "");
+
+        // Convertimos ingredientes a texto plano:
+        // Ej: "3 piezas pepino; 2 cucharadas azúcar"
+        const ingredientesTexto = data.ingredientes
+          ?.map((ing: { cantidad: any; nombre: any; }) => `${ing.cantidad} ${ing.nombre}`)
+          .join("; ") || "";
+
+        setIngredientes(ingredientesTexto);
+
         setInstructions(data.instructions || "");
         setImage(data.image);
         setCategory(data.category);
@@ -39,18 +48,31 @@ export default function AdminEditRecipe() {
   // Guardar cambios
   const handleSave = async () => {
     try {
-      const res = await fetch(`http://receplus-backend-1.onrender.com/api/recipes/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          ingredientes: ingredientes.split(",").map(i => i.trim()),
-          instructions,
-          image,
-          category,
-          dificultad
-        }),
-      });
+      const token = await AsyncStorage.getItem("userToken");
+
+      if (!token) {
+        Alert.alert("Error", "No se encontró el token de autenticación.");
+        return;
+      }
+
+      const res = await fetch(
+        `https://receplus-backend-1.onrender.com/api/recipes/admin/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title,
+            ingredientes, // 🔥 ahora enviamos el texto completo
+            instructions,
+            image,
+            category,
+            dificultad,
+          }),
+        }
+      );
 
       if (res.ok) {
         Alert.alert("Éxito", "Receta actualizada correctamente.");
@@ -71,9 +93,9 @@ export default function AdminEditRecipe() {
       <Text style={styles.label}>Título</Text>
       <TextInput style={styles.input} value={title} onChangeText={setTitle} />
 
-      <Text style={styles.label}>Ingredientes (separados por comas)</Text>
+      <Text style={styles.label}>Ingredientes (formato: "3 piezas pepino; 2 cucharadas azúcar")</Text>
       <TextInput
-        style={[styles.input, { height: 90 }]}
+        style={[styles.input, styles.textAreaSmall]}
         value={ingredientes}
         onChangeText={setIngredientes}
         multiline
@@ -81,7 +103,7 @@ export default function AdminEditRecipe() {
 
       <Text style={styles.label}>Instrucciones</Text>
       <TextInput
-        style={[styles.input, { height: 140 }]}
+        style={[styles.input, styles.textAreaLarge]}
         value={instructions}
         onChangeText={setInstructions}
         multiline
@@ -110,7 +132,8 @@ export default function AdminEditRecipe() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#f0f0f0",
+    marginTop: 40,
+    backgroundColor: "#f8f9fa",
   },
   title: {
     fontSize: 26,
@@ -121,6 +144,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 5,
+    fontWeight: "600",
   },
   input: {
     backgroundColor: "white",
@@ -129,8 +153,16 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     elevation: 2,
   },
+  textAreaSmall: {
+    height: 90,
+    textAlignVertical: "top",
+  },
+  textAreaLarge: {
+    height: 140,
+    textAlignVertical: "top",
+  },
   saveButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#3b82f6",
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -142,7 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   backButton: {
-    backgroundColor: "#888",
+    backgroundColor: "#6b7280",
     padding: 14,
     borderRadius: 10,
     alignItems: "center",

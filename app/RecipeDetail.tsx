@@ -10,16 +10,35 @@ import {
 } from 'react-native';
 
 export default function RecipeDetail() {
-  const { id } = useLocalSearchParams();
+  const { id, search } = useLocalSearchParams();
   const router = useRouter();
   const [receta, setReceta] = useState<any>(null);
+  const [faltantes, setFaltantes] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch(`https://receplus-backend.onrender.com/api/recipes/${id}`)
+    fetch(`https://receplus-backend-1.onrender.com/api/recipes/${id}`)
       .then(res => res.json())
-      .then(data => setReceta(data))
+      .then(data => {
+        setReceta(data);
+        calcularFaltantes(data);
+      })
       .catch(err => console.error(err));
   }, [id]);
+
+  const calcularFaltantes = (data: any) => {
+    if (!search) return;
+
+    const buscados = String(search)
+      .split(',')
+      .map(s => s.trim().toLowerCase());
+
+    const deReceta = (data.ingredientes || [])
+      .map((i: any) => i.nombre.toLowerCase());
+
+    const faltan = deReceta.filter((ing: string) => !buscados.includes(ing));
+
+    setFaltantes(faltan);
+  };
 
   if (!receta) {
     return <Text style={{ margin: 20 }}>Cargando receta...</Text>;
@@ -29,7 +48,9 @@ export default function RecipeDetail() {
     <ScrollView contentContainerStyle={styles.screen}>
       <View style={styles.card}>
         <Image
-          source={{ uri: receta.image || 'https://via.placeholder.com/300x200.png?text=Receta' }}
+          source={{
+            uri: receta.image || 'https://via.placeholder.com/300x200.png?text=Receta'
+          }}
           style={styles.image}
         />
 
@@ -38,10 +59,28 @@ export default function RecipeDetail() {
           {receta.category} <Text style={styles.dot}>•</Text> {receta.dificultad}
         </Text>
 
+        {/* INGREDIENTES FALTANTES */}
+        {search && (
+          <>
+            <Text style={styles.section}>Ingredientes que te faltan</Text>
+            {faltantes.length > 0 ? (
+              <View style={styles.missingContainer}>
+                {faltantes.map((ing, i) => (
+                  <Text key={i} style={styles.missingItem}>• {ing}</Text>
+                ))}
+              </View>
+            ) : (
+              <Text style={styles.allGood}>¡Tienes todos los ingredientes!</Text>
+            )}
+          </>
+        )}
+
         <Text style={styles.section}>Ingredientes</Text>
         <View style={styles.listContainer}>
-          {receta.ingredientes.map((item: string, index: number) => (
-            <Text key={index} style={styles.listItem}>• {item}</Text>
+          {receta.ingredientes.map((item: any, index: number) => (
+            <Text key={index} style={styles.listItem}>
+              • {item.nombre} — {item.cantidad}
+            </Text>
           ))}
         </View>
 
@@ -58,7 +97,9 @@ export default function RecipeDetail() {
 
 const styles = StyleSheet.create({
   screen: {
-    padding: 16,
+    paddingHorizontal: 15,
+    paddingBottom: 50,
+    marginTop: 50,
     backgroundColor: '#f4f4f4',
     alignItems: 'center'
   },
@@ -96,6 +137,22 @@ const styles = StyleSheet.create({
   dot: {
     color: '#ccc',
   },
+  missingContainer: {
+    marginBottom: 10,
+    backgroundColor: '#fff3e0',
+    padding: 12,
+    borderRadius: 8
+  },
+  missingItem: {
+    fontSize: 15,
+    color: '#c62828',
+    marginBottom: 4,
+  },
+  allGood: {
+    fontSize: 15,
+    color: '#2e7d32',
+    marginBottom: 10,
+  },
   section: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -107,7 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#444',
     lineHeight: 22,
-    textAlign: 'center'
+    textAlign: 'left'
   },
   listContainer: {
     marginBottom: 10,

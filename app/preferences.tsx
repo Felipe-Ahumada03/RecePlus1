@@ -50,7 +50,7 @@ export default function PreferencesScreen() {
         return Alert.alert("Error", "No se encontró usuario.");
       }
 
-      const res = await fetch('https://receplus-backend.onrender.com/api/preferences/save', {
+      const res = await fetch('https://receplus-backend-1.onrender.com/api/preferences/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -66,7 +66,6 @@ export default function PreferencesScreen() {
 
       if (res.ok) {
         Alert.alert("Éxito", "Tus preferencias han sido guardadas correctamente.");
-        router.replace('/recipes');
       } else {
         Alert.alert("Error", data.message || "No se pudo guardar.");
       }
@@ -116,7 +115,7 @@ export default function PreferencesScreen() {
         {/* FAVORITOS */}
         {renderOptions(
           'Tipos de comida favoritos',
-          ['Italiana', 'Mexicana', 'Asiática', 'Mediterránea', 'India', 'Española', 'Francesa', 'Vegetariana'],
+          ['Italiana', 'Mexicana', 'Asiática', 'Mediterránea', 'India', 'Española', 'Francesa', 'Vegetariana', 'Desayuno', 'Cena'],
           favorites,
           setFavorites
         )}
@@ -242,7 +241,7 @@ export default function PreferencesScreen() {
 
 /* --- ESTILOS --- */
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: { flex: 1, backgroundColor: '#ffffffff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -264,48 +263,28 @@ const styles = StyleSheet.create({
   optionSelected: { backgroundColor: '#a5d6a7' },
   optionText: { color: '#333' },
   optionTextSelected: { fontWeight: 'bold', color: '#2e7d32' },
-  textArea: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, minHeight: 80, textAlignVertical: 'top' },
+  textArea: { borderWidth: 1, borderColor: '#e1dcdcff', borderRadius: 8, padding: 10, minHeight: 80, textAlignVertical: 'top' },
   saveButton: { marginTop: 20, backgroundColor: '#2e7d32', padding: 14, borderRadius: 8, alignItems: 'center' },
   saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
   bottomNav: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 8, // Reducido de 12
+    paddingVertical: 12,
     borderTopWidth: 1,
-    padding: 4,
-    borderTopColor: '#eee',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 8, // Ajustado para iOS
+    paddingBottom: 25,
+    borderTopColor: '#ddd'
   },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  navText: {
-    fontSize: 13,
-    color: '#2e7d32',
-  },
-  activeNavItem: {
-    backgroundColor: '#e8f5e9',
-    borderRadius: 8,
-    padding: 4,
-  },
-  activeNavText: {
-    color: '#22c55e',
-    fontWeight: 'bold',
-  },
+  navItem: { alignItems: 'center' },
+  navText: { fontSize: 12, color: '#2e7d32' },
+  activeNavItem: { borderBottomWidth: 2, borderBottomColor: '#22c55e' },
+  activeNavText: { color: '#22c55e', fontWeight: 'bold' },
 
   footer: {
     borderTopWidth: 1,
     borderTopColor: '#eee',
-    paddingTop: 32,
-    paddingBottom: 80,
+    paddingTop: 10,
+    paddingBottom: 0,
     paddingHorizontal: 10,
     backgroundColor: '#fff',
     marginTop: 32,
@@ -337,9 +316,8 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#eee',
     paddingTop: 10,
-    marginBottom: 20,
+    marginBottom: 10,
     alignItems: 'center',
-    marginTop: 8,
   },
   footerCopyrightText: { color: '#888', fontSize: 13, textAlign: 'center' },
 });

@@ -20,6 +20,14 @@ export default function AdminPanel() {
   const [recetas, setRecetas] = useState<any[]>([]);
   const [searchText, setSearchText] = useState("");
 
+  // Dashboard stats
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    freeUsers: 0,
+    premiumUsers: 0,
+    totalRecipes: 0,
+  });
+
   // Campos del formulario
   const [title, setTitle] = useState("");
   const [ingredientes, setIngredientes] = useState("");
@@ -28,6 +36,7 @@ export default function AdminPanel() {
   const [category, setCategory] = useState("");
   const [dificultad, setDificultad] = useState("");
 
+  // Cargar token almacenado
   useEffect(() => {
     (async () => {
       const stored = await AsyncStorage.getItem("userToken");
@@ -35,6 +44,7 @@ export default function AdminPanel() {
     })();
   }, []);
 
+  // Cargar recetas
   const cargarRecetas = async () => {
     try {
       const res = await fetch(
@@ -50,8 +60,28 @@ export default function AdminPanel() {
     }
   };
 
+  // Cargar estadísticas del dashboard
+  const cargarStats = async () => {
+    try {
+      const res = await fetch(
+        "https://receplus-backend-1.onrender.com/api/admin/stats",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const data = await res.json();
+      setStats(data);
+    } catch (error) {
+      console.log("Error al cargar estadísticas:", error);
+    }
+  };
+
   useEffect(() => {
-    if (token) cargarRecetas();
+    if (token) {
+      cargarRecetas();
+      cargarStats();
+    }
   }, [token]);
 
   const agregarReceta = async () => {
@@ -59,6 +89,18 @@ export default function AdminPanel() {
       Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
+
+    // Convertir ingredientes
+    const ingredientesArray = ingredientes
+      .split(";")
+      .map((i) => i.trim())
+      .filter((i) => i.length > 0)
+      .map((linea) => {
+        const partes = linea.split(" ");
+        const cantidad = partes.slice(0, 2).join(" ");
+        const nombre = partes.slice(2).join(" ");
+        return { nombre, cantidad };
+      });
 
     try {
       const res = await fetch(
@@ -71,7 +113,7 @@ export default function AdminPanel() {
           },
           body: JSON.stringify({
             title,
-            ingredientes: ingredientes.split(",").map((i) => i.trim()),
+            ingredientes: ingredientesArray,
             instructions,
             image,
             category,
@@ -85,6 +127,7 @@ export default function AdminPanel() {
       if (res.ok) {
         Alert.alert("Éxito", "Receta agregada correctamente");
         cargarRecetas();
+        cargarStats(); // 🔥 Actualiza el dashboard
 
         setTitle("");
         setIngredientes("");
@@ -109,7 +152,9 @@ export default function AdminPanel() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       cargarRecetas();
+      cargarStats(); // 🔥 Actualiza el dashboard
     } catch (error) {
       console.log("Error al eliminar receta:", error);
     }
@@ -126,6 +171,7 @@ export default function AdminPanel() {
 
   return (
     <ScrollView style={styles.container}>
+      {/* Encabezado */}
       <View style={styles.headerRow}>
         <Text style={styles.title}>Panel de Administración</Text>
 
@@ -134,6 +180,32 @@ export default function AdminPanel() {
         </Pressable>
       </View>
 
+      {/* DASHBOARD */}
+      <Text style={styles.sectionTitle}>Dashboard</Text>
+
+      <View style={styles.dashboardRow}>
+        <View style={[styles.card, { backgroundColor: "#3b82f6" }]}>
+          <Text style={styles.cardLabel}>Usuarios Totales</Text>
+          <Text style={styles.cardNumber}>{stats.totalUsers}</Text>
+        </View>
+
+        <View style={[styles.card, { backgroundColor: "#10b981" }]}>
+          <Text style={styles.cardLabel}>Usuarios Free</Text>
+          <Text style={styles.cardNumber}>{stats.freeUsers}</Text>
+        </View>
+
+        <View style={[styles.card, { backgroundColor: "#a855f7" }]}>
+          <Text style={styles.cardLabel}>Premium</Text>
+          <Text style={styles.cardNumber}>{stats.premiumUsers}</Text>
+        </View>
+
+        <View style={[styles.card, { backgroundColor: "#f59e0b" }]}>
+          <Text style={styles.cardLabel}>Total Recetas</Text>
+          <Text style={styles.cardNumber}>{stats.totalRecipes}</Text>
+        </View>
+      </View>
+
+      {/* FORMULARIO AGREGAR RECETA */}
       <View style={styles.cardForm}>
         <Text style={styles.sectionTitle}>Agregar nueva receta</Text>
 
@@ -143,12 +215,15 @@ export default function AdminPanel() {
           value={title}
           onChangeText={setTitle}
         />
+
         <TextInput
           style={styles.input}
-          placeholder="Ingredientes (separados por coma)"
+          placeholder="Ej: '3 piezas pepino; 2 cucharadas azúcar'"
           value={ingredientes}
           onChangeText={setIngredientes}
+          multiline
         />
+
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Instrucciones"
@@ -156,18 +231,21 @@ export default function AdminPanel() {
           onChangeText={setInstructions}
           multiline
         />
+
         <TextInput
           style={styles.input}
-          placeholder="URL de imagen"
+          placeholder="URL imagen"
           value={image}
           onChangeText={setImage}
         />
+
         <TextInput
           style={styles.input}
           placeholder="Categoría"
           value={category}
           onChangeText={setCategory}
         />
+
         <TextInput
           style={styles.input}
           placeholder="Dificultad"
@@ -182,7 +260,7 @@ export default function AdminPanel() {
 
       <Text style={styles.sectionTitle}>Recetas existentes</Text>
 
-      {/* 🔍 Barra de búsqueda */}
+      {/* Barra de búsqueda */}
       <TextInput
         style={styles.searchBar}
         placeholder="Buscar receta..."
@@ -209,18 +287,17 @@ export default function AdminPanel() {
               onPress={() =>
                 router.push({
                   pathname: "/AdminRecipesView",
-                  params: { id: item._id }
+                  params: { id: item._id },
                 })
               }
             />
 
-            {/* ✏️ NUEVO BOTÓN DE EDITAR */}
             <Pressable
               style={styles.editButton}
               onPress={() =>
                 router.push({
                   pathname: "/AdminEditRecipe",
-                  params: { id: item._id }
+                  params: { id: item._id },
                 })
               }
             >
@@ -245,7 +322,6 @@ const styles = StyleSheet.create({
 
   headerRow: {
     flexDirection: "column",
-    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
     marginTop: 15,
@@ -269,6 +345,35 @@ const styles = StyleSheet.create({
     color: "#1f2937",
   },
 
+  /* DASHBOARD */
+  dashboardRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    marginBottom: 25,
+  },
+
+  card: {
+    width: "48%",
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 15,
+  },
+
+  cardLabel: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "600",
+  },
+
+  cardNumber: {
+    fontSize: 28,
+    color: "#fff",
+    fontWeight: "900",
+    marginTop: 5,
+  },
+
+  /* FORM */
   cardForm: {
     backgroundColor: "white",
     padding: 20,
@@ -312,6 +417,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
+  /* LISTA DE RECETAS */
   recipeCard: {
     backgroundColor: "white",
     padding: 16,
@@ -345,7 +451,6 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 8,
     fontSize: 12,
-    overflow: "hidden",
   },
 
   editButton: {
